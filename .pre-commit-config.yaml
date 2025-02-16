@@ -3,13 +3,13 @@ repos:
   rev: 7.1.0
   hooks:
   - id: flake8
-    args: ["--config", "src/.flake8"]
+    args: ["--config", ".flake8"]
     stages: [push]
 - repo: https://github.com/psf/black
   rev: 24.4.2
   hooks:
   - id: black
-    args: ["--config", "src/pyproject.toml"]
+    args: ["--config", "pyproject.toml"]
     stages: [push]
 - repo: https://github.com/pycqa/isort
   rev: 5.13.2

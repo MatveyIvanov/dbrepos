@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Callable, Dict, Iterable, Literal, Type, TypeVar
 
+from core.abstract import IFilter, IFilterSeq, mode, operator
 from sqlalchemy import (
     BinaryExpression,
     Column,
@@ -10,8 +11,6 @@ from sqlalchemy import (
     and_,
     or_,
 )
-
-from core.abstract import operator, mode, IFilter, IFilterSeq
 
 TTable = TypeVar("TTable")
 TFieldValue = TypeVar("TFieldValue", int, str, bytes, float)

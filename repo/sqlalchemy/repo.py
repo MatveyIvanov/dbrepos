@@ -1,29 +1,18 @@
 from contextlib import AbstractContextManager
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Iterable, Mapping, Sequence, Tuple, Type, TypeVar
-from _typeshed import DataclassInstance
 
-from sqlalchemy import (
-    ColumnElement,
-    Delete,
-    Select,
-    Update,
-    delete,
-    select,
-    update,
-)
+from _typeshed import DataclassInstance
+from sqlalchemy import ColumnElement, Delete, Select, Update, delete, select, update
 from sqlalchemy.orm import Session
 
 from repo.core.abstract import IFilterSeq, IRepo, mode, operator
 from repo.core.types import Extra
-from repo.decorators import (
-    strict as _strict,
-    handle_error as _handle_error,
-    session as _session,
-)
-from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
+from repo.decorators import handle_error as _handle_error
+from repo.decorators import session as _session
+from repo.decorators import strict as _strict
 from repo.shortcuts import get_object_or_404 as _get_object_or_404
-
+from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
 
 TModel = TypeVar("TModel")
 TTable = TypeVar("TTable")

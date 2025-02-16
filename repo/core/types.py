@@ -1,4 +1,4 @@
-from dataclasses import dataclass, Field
+from dataclasses import Field, dataclass
 from typing import Tuple
 
 

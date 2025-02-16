@@ -1,6 +1,5 @@
 from typing import Type, TypeVar
 
-
 TObject = TypeVar("TObject")
 
 BASE_EXCEPTION = Exception

@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import Callable, Dict, Type, TypeVar
 
+from core.abstract import IFilter, IFilterSeq, mode, operator
 from django.db.models import Field, Q
-
-from core.abstract import operator, mode, IFilter, IFilterSeq
 
 TTable = TypeVar("TTable")
 TFieldValue = TypeVar("TFieldValue", int, str, bytes, float)

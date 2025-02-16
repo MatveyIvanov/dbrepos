@@ -1,23 +1,15 @@
 from dataclasses import asdict
-from typing import (
-    TYPE_CHECKING,
-    Iterable,
-    Mapping,
-    Sequence,
-    Tuple,
-    Type,
-    TypeVar,
-)
-from _typeshed import DataclassInstance
+from typing import TYPE_CHECKING, Iterable, Mapping, Sequence, Tuple, Type, TypeVar
 
+from _typeshed import DataclassInstance
 from django.db.models import Model, Q, QuerySet
 
 from repo.core.abstract import IFilterSeq, IRepo, mode, operator
-from repo.decorators import strict as _strict, handle_error as _handle_error
 from repo.core.types import Extra
+from repo.decorators import handle_error as _handle_error
+from repo.decorators import strict as _strict
 from repo.django.filters import DjangoFilter, DjangoFilterSeq
 from repo.shortcuts import get_object_or_404 as _get_object_or_404
-
 
 TModel = TypeVar("TModel", bound=Model)
 TTable = TypeVar("TTable")

@@ -3,21 +3,20 @@ from __future__ import annotations
 from contextlib import AbstractContextManager
 from enum import IntEnum
 from typing import (
+    TYPE_CHECKING,
     Iterable,
     Literal,
     Mapping,
+    Protocol,
     Sequence,
     Tuple,
-    TypeVar,
     Type,
+    TypeVar,
     overload,
-    Protocol,
-    TYPE_CHECKING,
 )
+
 from _typeshed import DataclassInstance
-
 from core.types import Extra
-
 
 TTable = TypeVar("TTable")
 TColumn = TypeVar("TColumn")
