@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Iterable, Mapping, Sequence, Tuple, Type, Type
 
 from _typeshed import DataclassInstance
 from sqlalchemy import ColumnElement, Delete, Select, Update, delete, select, update
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, Query
 
 from repo.core.abstract import IFilterSeq, IRepo, mode, operator
 from repo.core.types import Extra
@@ -23,7 +23,7 @@ else:
 TPrimaryKey = TypeVar("TPrimaryKey", int, str)
 TFieldValue = TypeVar("TFieldValue", int, str, bytes, float)
 TSession = TypeVar("TSession", Session)
-TQuery = TypeVar("TQuery", Select, Update, Delete)
+TQuery = TypeVar("TQuery", Select, Query, Update, Delete)
 
 
 strict = _strict
@@ -297,7 +297,14 @@ class Repo(IRepo[TModel]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> int:
-        raise NotImplementedError  # TODO
+        return (
+            self._resolve_extra(
+                qs=self._query(session),
+                extra=extra,
+            )
+            .filter(getattr(self.table_class, name) == value)
+            .count()
+        )
 
     @handle_error
     @session
@@ -308,7 +315,14 @@ class Repo(IRepo[TModel]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> int:
-        raise NotImplementedError  # TODO
+        return (
+            self._resolve_extra(
+                qs=self._query(session),
+                extra=extra,
+            )
+            .filter(filters.compile())
+            .count()
+        )
 
     """ Low-level API """
 
@@ -321,6 +335,9 @@ class Repo(IRepo[TModel]):
     def _delete(self) -> Delete[TModel]:
         return delete(self.table_class)
 
+    def _query(self, session: TSession) -> Query[TModel]:
+        return session.query(self.table_class)
+
     """ Utils """
 
     def _resolve_extra(
@@ -331,12 +348,12 @@ class Repo(IRepo[TModel]):
     ) -> TQuery:
         if not extra:
             return qs
-        if isinstance(qs, Select) and extra.for_update:
+        if isinstance(qs, (Select, Query)) and extra.for_update:
             qs = qs.with_for_update()
         if self.is_soft_deletable and not extra.include_soft_deleted:
             qs = qs.filter(
                 getattr(self.table_class, "is_deleted") == False  # noqa:E712
             )
-        if isinstance(qs, Select) and extra.ordering:
+        if isinstance(qs, (Select, Query)) and extra.ordering:
             qs = qs.order_by(*extra.ordering)
         return qs
