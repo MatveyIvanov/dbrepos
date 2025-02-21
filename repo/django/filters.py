@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable, Dict, Type, TypeVar
 
-from django.db.models import Field, Q, Model  # type:ignore[import-untyped]
+from django.db.models import Field, Model, Q  # type:ignore[import-untyped]
 
 from repo.core.abstract import IFilter, IFilterSeq, mode, operator
 

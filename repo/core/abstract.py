@@ -15,6 +15,7 @@ from typing import (
     overload,
     runtime_checkable,
 )
+
 from _typeshed import DataclassInstance
 
 from repo.core.types import Extra

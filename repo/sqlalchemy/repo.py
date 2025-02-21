@@ -13,7 +13,7 @@ from typing import (
 
 from _typeshed import DataclassInstance
 from sqlalchemy import ColumnElement, Delete, Select, Update, delete, select, update
-from sqlalchemy.orm import Session, Query
+from sqlalchemy.orm import Query, Session
 
 from repo.core.abstract import IFilterSeq, IRepo, mode, operator
 from repo.core.types import Extra
