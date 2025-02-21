@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import Callable, Dict, Type, TypeVar
 
-from core.abstract import IFilter, IFilterSeq, mode, operator
-from django.db.models import Field, Q
+from django.db.models import Field, Q, Model  # type:ignore[import-untyped]
 
-TTable = TypeVar("TTable")
-TFieldValue = TypeVar("TFieldValue", int, str, bytes, float)
+from repo.core.abstract import IFilter, IFilterSeq, mode, operator
+
+TModel = TypeVar("TModel", bound=Model)
+TFieldValue = TypeVar("TFieldValue")
 
 
 _OPERATOR_TO_LOOKUP: Dict[operator, str] = {
@@ -26,10 +27,10 @@ _MODE_TO_ORM: Dict[mode, Callable[[Q], Q]] = {
 }
 
 
-class DjangoFilter(IFilter[TTable]):
+class DjangoFilter(IFilter[TModel, Field, TFieldValue]):
     def __init__(
         self,
-        table_class: Type[TTable],
+        table_class: Type[TModel],
         column_name: str,
         value: TFieldValue | None = None,
         operator_: operator = operator.eq,

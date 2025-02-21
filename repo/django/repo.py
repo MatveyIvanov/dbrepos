@@ -2,7 +2,7 @@ from dataclasses import asdict
 from typing import TYPE_CHECKING, Iterable, Mapping, Sequence, Tuple, Type, TypeVar
 
 from _typeshed import DataclassInstance
-from django.db.models import Model, Q, QuerySet
+from django.db.models import Model, Q, QuerySet  # type:ignore[import-untyped]
 
 from repo.core.abstract import IFilterSeq, IRepo, mode, operator
 from repo.core.types import Extra
@@ -11,14 +11,13 @@ from repo.decorators import strict as _strict
 from repo.django.filters import DjangoFilter, DjangoFilterSeq
 from repo.shortcuts import get_object_or_404 as _get_object_or_404
 
-TModel = TypeVar("TModel", bound=Model)
-TTable = TypeVar("TTable")
+TTable = TypeVar("TTable", bound=Model)
 if TYPE_CHECKING:
     TEntity = TypeVar("TEntity", bound=DataclassInstance)
 else:
     TEntity = TypeVar("TEntity")
 TPrimaryKey = TypeVar("TPrimaryKey", int, str)
-TFieldValue = TypeVar("TFieldValue", int, str, bytes, float)
+TFieldValue = TypeVar("TFieldValue")
 TSession = TypeVar("TSession")
 
 
@@ -27,11 +26,11 @@ handle_error = _handle_error
 get_object_or_404 = _get_object_or_404
 
 
-class DjangoRepo(IRepo[TModel]):
+class DjangoRepo(IRepo[TTable]):
     def __init__(
         self,
         *,
-        table_class: Type[TModel],
+        table_class: Type[TTable],
         pk_field_name: str = "id",
         is_soft_deletable: bool = False,
         default_ordering: Tuple[str] = ("id",),
@@ -284,9 +283,9 @@ class DjangoRepo(IRepo[TModel]):
     def _resolve_extra(
         self,
         *,
-        qs: QuerySet[TModel],
+        qs: QuerySet[TTable],
         extra: Extra | None,
-    ) -> QuerySet[TModel]:
+    ) -> QuerySet[TTable]:
         if not extra:
             return qs
         if extra.for_update:

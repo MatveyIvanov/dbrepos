@@ -1,4 +1,4 @@
-from dataclasses import Field, dataclass
+from dataclasses import field, dataclass
 from typing import Tuple
 
 
@@ -19,5 +19,5 @@ class Extra:
 
     for_update: bool = False
     include_soft_deleted: bool = False
-    ordering: Tuple[str] = Field(default_factory=tuple)
-    select_related: Tuple[str] = Field(default_factory=tuple)
+    ordering: Tuple[str, ...] = field(default_factory=tuple)
+    select_related: Tuple[str, ...] = field(default_factory=tuple)

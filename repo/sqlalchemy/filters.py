@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Callable, Dict, Iterable, Literal, Type, TypeVar
 
-from core.abstract import IFilter, IFilterSeq, mode, operator
 from sqlalchemy import (
     BinaryExpression,
     Column,
@@ -12,8 +11,10 @@ from sqlalchemy import (
     or_,
 )
 
+from repo.core.abstract import IFilter, IFilterSeq, mode, operator
+
 TTable = TypeVar("TTable")
-TFieldValue = TypeVar("TFieldValue", int, str, bytes, float)
+TFieldValue = TypeVar("TFieldValue")
 
 
 _OPERATOR_TO_ORM: Dict[
@@ -25,7 +26,7 @@ _OPERATOR_TO_ORM: Dict[
     operator.le: Column.__le__,
     operator.gt: Column.__gt__,
     operator.ge: Column.__ge__,
-    operator.in_: Column.in_,
+    operator.in_: Column.in_,  # type:ignore[dict-item] # this is weird as hell...
     operator.is_: Column.is_,
 }
 
@@ -40,12 +41,12 @@ _MODE_TO_ORM: Dict[
         ColumnElement[bool],
     ],
 ] = {
-    mode.and_: and_,
-    mode.or_: or_,
+    mode.and_: and_,  # type:ignore[dict-item] # this is weird as hell...
+    mode.or_: or_,  # type:ignore[dict-item] # this is weird as hell...
 }
 
 
-class AlchemyFilter(IFilter[TTable]):
+class AlchemyFilter(IFilter[TTable, Column, TFieldValue]):
     def __init__(
         self,
         table_class: Type[TTable],
@@ -53,7 +54,9 @@ class AlchemyFilter(IFilter[TTable]):
         value: TFieldValue | None = None,
         operator_: operator = operator.eq,
     ) -> None:
-        self.column: Column = getattr(table_class, column_name, None)
+        self.column: Column = getattr(  # type:ignore[assignment]
+            table_class, column_name, None
+        )
         self.column_name = column_name
         self.value = value or None
         self.operator_ = operator_
@@ -70,12 +73,20 @@ class AlchemyFilter(IFilter[TTable]):
         return self
 
 
-class AlchemyFilterSeq(IFilterSeq):
-    def __init__(self, /, mode_: mode, *filters: IFilter | IFilterSeq):
+class AlchemyFilterSeq(IFilterSeq[BinaryExpression[bool] | ColumnElement[bool]]):
+    def __init__(
+        self,
+        /,
+        mode_: mode,
+        *filters: (
+            IFilter[TTable, Column, TFieldValue]
+            | IFilterSeq[BinaryExpression[bool] | ColumnElement[bool]]
+        ),
+    ):
         self.mode_ = mode_
         self.filters = filters
 
-    def compile(self) -> ColumnElement[bool]:
+    def compile(self) -> BinaryExpression[bool] | ColumnElement[bool]:
         result = []
         for filter in self.filters:
             if isinstance(filter, IFilter):

@@ -13,21 +13,22 @@ from typing import (
     Type,
     TypeVar,
     overload,
+    runtime_checkable,
 )
-
 from _typeshed import DataclassInstance
-from core.types import Extra
+
+from repo.core.types import Extra
 
 TTable = TypeVar("TTable")
 TColumn = TypeVar("TColumn")
 if TYPE_CHECKING:
-    TEntity = TypeVar("TEntity", bound=DataclassInstance)
+    TEntity = TypeVar("TEntity", bound=DataclassInstance, contravariant=True)
 else:
     TEntity = TypeVar("TEntity")
-TCompiledFilter = TypeVar("TCompiledFilter")
-TPrimaryKey = TypeVar("TPrimaryKey", int, str)
-TFieldValue = TypeVar("TFieldValue", int, str, bytes, float)
-TSession = TypeVar("TSession")
+TCompiledFilter = TypeVar("TCompiledFilter", covariant=True)
+TPrimaryKey = TypeVar("TPrimaryKey", int, str, covariant=True)
+TFieldValue = TypeVar("TFieldValue")
+TSession = TypeVar("TSession", covariant=True)
 
 
 class IRepo(Protocol[TTable]):
@@ -527,7 +528,8 @@ class mode(IntEnum):
     or_ = 1
 
 
-class IFilter(Protocol[TTable]):
+@runtime_checkable
+class IFilter(Protocol[TTable, TColumn, TFieldValue]):  # type:ignore[misc]
     column: TColumn
     column_name: str
     value: TFieldValue | None
@@ -575,7 +577,12 @@ class IFilter(Protocol[TTable]):
 
 
 class IFilterSeq(Protocol[TCompiledFilter]):
-    def __init__(self, /, mode_: mode, *filters: IFilter | IFilterSeq):
+    def __init__(
+        self,
+        /,
+        mode_: mode,
+        *filters: IFilter | IFilterSeq[TCompiledFilter],
+    ) -> None:
         """
         Args:
             mode_ (mode): Condition type between passed filters
