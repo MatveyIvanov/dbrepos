@@ -11,8 +11,19 @@ from typing import (
     cast,
 )
 
-from _typeshed import DataclassInstance
-from sqlalchemy import ColumnElement, Delete, Select, Update, delete, select, update
+if TYPE_CHECKING:
+    from _typeshed import DataclassInstance
+
+from sqlalchemy import (
+    ColumnElement,
+    Delete,
+    Select,
+    Update,
+    delete,
+    insert,
+    select,
+    update,
+)
 from sqlalchemy.orm import Query, Session
 
 from repo.core.abstract import IFilterSeq, IRepo, mode, operator
@@ -20,14 +31,17 @@ from repo.core.types import Extra
 from repo.decorators import handle_error as _handle_error
 from repo.decorators import session as _session
 from repo.decorators import strict as _strict
+from repo.decorators import convert as _convert
 from repo.shortcuts import get_object_or_404 as _get_object_or_404
 from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
 
 TTable = TypeVar("TTable")
 if TYPE_CHECKING:
     TEntity = TypeVar("TEntity", bound=DataclassInstance)
+    TResult = TypeVar("TEntity", TTable, DataclassInstance)
 else:
     TEntity = TypeVar("TEntity")
+    TResult = TypeVar("TEntity", bound=TTable)
 TPrimaryKey = TypeVar("TPrimaryKey", int, str)
 TFieldValue = TypeVar("TFieldValue")
 TSession = TypeVar("TSession", bound=Session)
@@ -37,10 +51,11 @@ TQuery = TypeVar("TQuery", Select, Query, Update, Delete)
 strict = _strict
 handle_error = _handle_error
 session = _session
+convert = _convert
 get_object_or_404 = _get_object_or_404
 
 
-class Repo(IRepo[TTable]):
+class AlchemyRepo(IRepo[TTable]):
     def __init__(
         self,
         *,
@@ -56,22 +71,29 @@ class Repo(IRepo[TTable]):
         self.default_ordering = default_ordering
         self.session_factory = session_factory
 
-        assert hasattr(self.table_class, self.pk_field_name), "Wrong pk_field"
+        assert (
+            session_factory is not None
+        ), "Session factory is required for AlchemyRepo"
+        assert hasattr(self.table_class, self.pk_field_name) or hasattr(
+            getattr(self.table_class, "columns", dict()), self.pk_field_name
+        ), "Wrong pk_field_name"
 
     @handle_error
     @session
+    @convert
     def create(
         self,
         entity: TEntity,
         *,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> TTable:
         session = cast(TSession, session)
-        instance = self.table_class(**asdict(entity))
-        session.add(instance)
-        session.flush([instance])
-        session.refresh(instance)
-        return instance
+        return session.execute(
+            insert(self.table_class)
+            .values(**asdict(entity))
+            .returning(self.table_class)
+        ).one()
 
     @handle_error
     @strict
@@ -84,6 +106,7 @@ class Repo(IRepo[TTable]):
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> TTable:
         session = cast(TSession, session)
         qs = self._resolve_extra(
@@ -103,6 +126,7 @@ class Repo(IRepo[TTable]):
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> TTable:
         session = cast(TSession, session)
         qs = self._resolve_extra(
@@ -121,6 +145,7 @@ class Repo(IRepo[TTable]):
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> TTable:
         session = cast(TSession, session)
         return self.get_by_field(
@@ -138,6 +163,7 @@ class Repo(IRepo[TTable]):
         *,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> Iterable[TTable]:
         session = cast(TSession, session)
         return session.execute(  # type:ignore[return-value] # Though Result is iterable
@@ -153,6 +179,7 @@ class Repo(IRepo[TTable]):
         value: TFieldValue,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> Iterable[TTable]:
         session = cast(TSession, session)
         qs = self._resolve_extra(
@@ -171,6 +198,7 @@ class Repo(IRepo[TTable]):
         filters: IFilterSeq,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> Iterable[TTable]:
         session = cast(TSession, session)
         qs = self._resolve_extra(
@@ -189,6 +217,7 @@ class Repo(IRepo[TTable]):
         *,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> Iterable[TTable]:
         session = cast(TSession, session)
         return self.all_by_filters(

@@ -10,6 +10,7 @@ readme = "README.md"
 python = "^3.11"
 django = "5.1.4"
 sqlalchemy = "2.0.36"
+pytest-django = "4.10.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.2.1"
@@ -23,13 +24,24 @@ pre-commit = "3.7.1"
 isort = "5.13.2"
 
 [tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
 python_files = "test_*.py"
+filterwarnings = [
+    "ignore::RuntimeWarning"
+]
+markers = [
+    "unit: marks tests as unit-tests (deselect with '-m \"not unit\"')",
+    "integration: marks tests as integration-tests (deselect with '-m \"not integration\"')",
+]
 addopts = [
     "-v",
     "-rfxP",
     "--cov",
     "--log-level=CRITICAL",
 ]
+DJANGO_SETTINGS_MODULE = "tests.django.config.settings"
 
 [tool.coverage.report]
 exclude_also = [

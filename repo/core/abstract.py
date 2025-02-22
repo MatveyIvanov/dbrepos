@@ -16,7 +16,8 @@ from typing import (
     runtime_checkable,
 )
 
-from _typeshed import DataclassInstance
+if TYPE_CHECKING:
+    from _typeshed import DataclassInstance
 
 from repo.core.types import Extra
 
@@ -24,8 +25,10 @@ TTable = TypeVar("TTable")
 TColumn = TypeVar("TColumn")
 if TYPE_CHECKING:
     TEntity = TypeVar("TEntity", bound=DataclassInstance, contravariant=True)
+    TResult = TypeVar("TEntity", TTable, DataclassInstance)
 else:
     TEntity = TypeVar("TEntity")
+    TResult = TypeVar("TEntity", bound=TTable)
 TCompiledFilter = TypeVar("TCompiledFilter", covariant=True)
 TPrimaryKey = TypeVar("TPrimaryKey", int, str, covariant=True)
 TFieldValue = TypeVar("TFieldValue")
@@ -69,7 +72,8 @@ class IRepo(Protocol[TTable]):
         entity: TEntity,
         *,
         session: TSession | None = None,
-    ) -> TTable:
+        convert_to: TResult | None = None,
+    ) -> TResult:
         """
         Insert row
 
@@ -78,9 +82,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            TTable: Inserted row
+            TResult: Inserted row
         """
 
     @overload
@@ -92,7 +97,8 @@ class IRepo(Protocol[TTable]):
         strict: Literal[True] = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-    ) -> TTable:
+        convert_to: TResult | None = None,
+    ) -> TResult:
         """
         Get row by field:value
 
@@ -107,9 +113,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            Iterable[TTable]: Found row
+            TResult: Found row
         """
 
     @overload
@@ -121,7 +128,8 @@ class IRepo(Protocol[TTable]):
         strict: Literal[False],
         extra: Extra | None = None,
         session: TSession | None = None,
-    ) -> TTable | None:
+        convert_to: TResult | None = None,
+    ) -> TResult | None:
         """
         Get row by field:value
 
@@ -136,9 +144,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            Iterable[TTable | None]: Found row or None
+            TResult | None: Found row or None
         """
 
     @overload
@@ -149,7 +158,8 @@ class IRepo(Protocol[TTable]):
         strict: Literal[True] = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-    ) -> TTable:
+        convert_to: TResult | None = None,
+    ) -> TResult:
         """
         Get row by filters
 
@@ -163,9 +173,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            TTable: Found row
+            TResult: Found row
         """
 
     @overload
@@ -176,7 +187,8 @@ class IRepo(Protocol[TTable]):
         strict: Literal[False],
         extra: Extra | None = None,
         session: TSession | None = None,
-    ) -> TTable:
+        convert_to: TResult | None = None,
+    ) -> TResult | None:
         """
         Get row by filters
 
@@ -190,9 +202,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            TTable | None: Found row or None
+            TResult | None: Found row or None
         """
 
     @overload
@@ -203,7 +216,8 @@ class IRepo(Protocol[TTable]):
         strict: Literal[True] = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-    ) -> TTable:
+        convert_to: TResult | None = None,
+    ) -> TResult:
         """
         Get row by primary key
 
@@ -217,9 +231,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            TTable: Found row
+            TResult: Found row
         """
 
     @overload
@@ -230,7 +245,8 @@ class IRepo(Protocol[TTable]):
         strict: Literal[False],
         extra: Extra | None = None,
         session: TSession | None = None,
-    ) -> TTable | None:
+        convert_to: TResult | None = None,
+    ) -> TResult | None:
         """
         Get row by primary key
 
@@ -244,9 +260,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            TTable | None: Found row or None
+            TResult | None: Found row or None
         """
 
     def all(
@@ -254,7 +271,8 @@ class IRepo(Protocol[TTable]):
         *,
         extra: Extra | None = None,
         session: TSession | None = None,
-    ) -> Iterable[TTable]:
+        convert_to: TResult | None = None,
+    ) -> Iterable[TResult]:
         """
         Select rows
 
@@ -264,9 +282,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            Iterable[TTable]: Found rows
+            Iterable[TResult]: Found rows
         """
 
     def all_by_field(
@@ -276,7 +295,8 @@ class IRepo(Protocol[TTable]):
         value: TFieldValue,
         extra: Extra | None = None,
         session: TSession | None = None,
-    ) -> Iterable[TTable]:
+        convert_to: TResult | None = None,
+    ) -> Iterable[TResult]:
         """
         Get rows by field:value
 
@@ -288,9 +308,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            Iterable[TTable]: Found rows
+            Iterable[TResult]: Found rows
         """
 
     def all_by_filters(
@@ -299,7 +320,8 @@ class IRepo(Protocol[TTable]):
         filters: IFilterSeq,
         extra: Extra | None = None,
         session: TSession | None = None,
-    ) -> Iterable[TTable]:
+        convert_to: TResult | None = None,
+    ) -> Iterable[TResult]:
         """
         Get rows by filters
 
@@ -310,9 +332,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            Iterable[TTable]: Found rows
+            Iterable[TResult]: Found rows
         """
 
     def all_by_pks(
@@ -321,7 +344,8 @@ class IRepo(Protocol[TTable]):
         *,
         extra: Extra | None = None,
         session: TSession | None = None,
-    ) -> Iterable[TTable]:
+        convert_to: TResult | None = None,
+    ) -> Iterable[TResult]:
         """
         Get rows by primary keys
 
@@ -332,9 +356,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
+            convert_to (TResult | None): Convert result to
 
         Returns:
-            Iterable[TTable]: Found rows
+            Iterable[TResult]: Found rows
         """
 
     def update(

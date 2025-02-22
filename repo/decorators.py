@@ -1,8 +1,19 @@
 import functools
 import logging
-from typing import Any, Callable, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Type, TypeVar
+
+from sqlalchemy import Row
+
+if TYPE_CHECKING:
+    from _typeshed import DataclassInstance
 
 logger = logging.getLogger(__name__)
+
+
+if TYPE_CHECKING:
+    TDataclass = TypeVar("TDataclass", bound=DataclassInstance)
+else:
+    TDataclass = TypeVar("TDataclass")
 
 
 def strict(func: Callable | None = None) -> Callable:
@@ -84,11 +95,43 @@ def session(func: Callable | None = None) -> Callable:
             if (
                 factory := getattr(self, "session_factory", None)
             ) is None or "session" in kwargs.keys():
-                return func(*args, **kwargs)
+                return func(self, *args, **kwargs)
 
             with factory() as session:
                 kwargs["session"] = session
-                return func(*args, **kwargs)
+                return func(self, *args, **kwargs)
+
+        return wrapper
+
+    if func is None:
+        return decorator
+
+    return decorator(func)
+
+
+def convert(func: Callable | None = None, *, many: bool = False):
+    def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            result = func(*args, **kwargs)
+            convert_to = kwargs.get("convert_to", None)
+            if convert_to is None:
+                return result
+
+            def as_one(instance):
+                if isinstance(result, Iterable):
+                    return convert_to(*result)
+                if isinstance(result, Row):
+                    return convert_to(*result[0])
+                return instance
+
+            if not many:
+                return as_one(result)
+
+            if not isinstance(result, Iterable):
+                return result
+
+            return [as_one(instance) for instance in result]
 
         return wrapper
 

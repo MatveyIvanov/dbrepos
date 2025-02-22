@@ -1,21 +1,26 @@
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Iterable, Mapping, Sequence, Tuple, Type, TypeVar
 
-from _typeshed import DataclassInstance
+if TYPE_CHECKING:
+    from _typeshed import DataclassInstance
+
 from django.db.models import Model, Q, QuerySet  # type:ignore[import-untyped]
 
 from repo.core.abstract import IFilterSeq, IRepo, mode, operator
 from repo.core.types import Extra
 from repo.decorators import handle_error as _handle_error
 from repo.decorators import strict as _strict
+from repo.decorators import convert as _convert
 from repo.django.filters import DjangoFilter, DjangoFilterSeq
 from repo.shortcuts import get_object_or_404 as _get_object_or_404
 
 TTable = TypeVar("TTable", bound=Model)
 if TYPE_CHECKING:
     TEntity = TypeVar("TEntity", bound=DataclassInstance)
+    TResult = TypeVar("TEntity", TTable, DataclassInstance)
 else:
     TEntity = TypeVar("TEntity")
+    TResult = TypeVar("TEntity", bound=TTable)
 TPrimaryKey = TypeVar("TPrimaryKey", int, str)
 TFieldValue = TypeVar("TFieldValue")
 TSession = TypeVar("TSession")
@@ -23,6 +28,7 @@ TSession = TypeVar("TSession")
 
 strict = _strict
 handle_error = _handle_error
+convert = _convert
 get_object_or_404 = _get_object_or_404
 
 
@@ -40,12 +46,16 @@ class DjangoRepo(IRepo[TTable]):
         self.is_soft_deletable = is_soft_deletable
         self.default_ordering = default_ordering
 
+        assert hasattr(self.table_class, self.pk_field_name), "Wrong pk_field_name"
+
     @handle_error
+    @convert
     def create(
         self,
         entity: TEntity,
         *,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> TTable:
         return self.table_class.objects.create(**asdict(entity))
 
@@ -59,6 +69,7 @@ class DjangoRepo(IRepo[TTable]):
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> TTable:
         return get_object_or_404(
             self._resolve_extra(qs=self.table_class.objects, extra=extra)
@@ -75,6 +86,7 @@ class DjangoRepo(IRepo[TTable]):
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> TTable:
         return get_object_or_404(
             self._resolve_extra(qs=self.table_class.objects, extra=extra)
@@ -90,6 +102,7 @@ class DjangoRepo(IRepo[TTable]):
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> TTable:
         return self.get_by_field(
             name=self.pk_field_name,
@@ -104,6 +117,7 @@ class DjangoRepo(IRepo[TTable]):
         *,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> Iterable[TTable]:
         return self._all(extra=extra)
 
@@ -115,6 +129,7 @@ class DjangoRepo(IRepo[TTable]):
         value: TFieldValue,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> Iterable[TTable]:
         return self._all_by_field(name=name, value=value, extra=extra)
 
@@ -125,6 +140,7 @@ class DjangoRepo(IRepo[TTable]):
         filters: IFilterSeq[Q],
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> Iterable[TTable]:
         return self._all_by_filters(filters=filters, extra=extra)
 
@@ -135,6 +151,7 @@ class DjangoRepo(IRepo[TTable]):
         *,
         extra: Extra | None = None,
         session: TSession | None = None,
+        convert_to: TResult | None = None,
     ) -> Iterable[TTable]:
         return self._all_by_pks(pks=pks, extra=extra)
 
