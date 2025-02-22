@@ -8,9 +8,9 @@ from django.db.models import Model, Q, QuerySet  # type:ignore[import-untyped]
 
 from repo.core.abstract import IFilterSeq, IRepo, mode, operator
 from repo.core.types import Extra
+from repo.decorators import convert as _convert
 from repo.decorators import handle_error as _handle_error
 from repo.decorators import strict as _strict
-from repo.decorators import convert as _convert
 from repo.django.filters import DjangoFilter, DjangoFilterSeq
 from repo.shortcuts import get_object_or_404 as _get_object_or_404
 

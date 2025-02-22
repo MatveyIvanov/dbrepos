@@ -1,11 +1,11 @@
-from inspect import isawaitable
 import logging
-from contextlib import contextmanager, asynccontextmanager
-from typing import Callable, Iterator, AsyncIterator, Type
+from contextlib import asynccontextmanager, contextmanager
+from inspect import isawaitable
+from typing import AsyncIterator, Callable, Iterator, Type
 
 import sqlalchemy as sa
-import sqlalchemy.orm as orm
 import sqlalchemy.ext.asyncio as aorm
+import sqlalchemy.orm as orm
 from sqlalchemy.exc import SQLAlchemyError
 
 logger = logging.getLogger("sqlalchemy")

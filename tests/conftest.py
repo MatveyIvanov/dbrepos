@@ -1,13 +1,13 @@
-from typing import Any, Literal
-import pytest
 import sqlite3
+from typing import Any, Literal
+
+import pytest
 import sqlalchemy as sa
 
+from tests.django.tables.models import DjangoTable
 from tests.fixtures.django import *  # noqa:F401,F403
 from tests.fixtures.sqlalchemy import *  # noqa:F401,F403
-from tests.django.tables.models import DjangoTable
 from tests.sqlalchemy import AlchemyTable
-
 
 DB_NAME = "test.db"
 # NOTE: I fucking hate django (or pytest-django?)
