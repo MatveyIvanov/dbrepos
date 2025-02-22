@@ -8,9 +8,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-django = "5.1.4"
-sqlalchemy = "2.0.36"
-pytest-django = "4.10.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.2.1"
@@ -22,6 +19,9 @@ mypy = "1.10.0"
 black = "24.4.2"
 pre-commit = "3.7.1"
 isort = "5.13.2"
+pytest-django = "4.10.0"
+django = "5.1.6"
+sqlalchemy = "2.0.36"
 
 [tool.pytest.ini_options]
 pythonpath = [
