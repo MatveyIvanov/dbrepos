@@ -73,6 +73,39 @@ TABLE_TO_ALCHEMY = {
 
 
 @pytest.fixture
+def sqlitify():
+    def _sqlitify(value: Any) -> str:
+        if isinstance(value, bool):
+            return str(value)
+
+        return f"'{value}'"
+
+    return _sqlitify
+
+
+@pytest.fixture
+def insert(alchemy_session_factory):
+    def _insert(table, runner, values):
+        def _alchemy():
+            with alchemy_session_factory() as session:
+                return session.execute(
+                    sa.insert(TABLE_TO_ALCHEMY[table])
+                    .values(**values)
+                    .returning(TABLE_TO_ALCHEMY[table])
+                ).one()
+
+        def _django():
+            return TABLE_TO_DJANGO[table].objects.create(**values)
+
+        return {
+            "alchemy": _alchemy,
+            "django": _django,
+        }[runner]()
+
+    return _insert
+
+
+@pytest.fixture
 def count(alchemy_session_factory):
     def _count(table: str, runner: Runner):
         def _alchemy():

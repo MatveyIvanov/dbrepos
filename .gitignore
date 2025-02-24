@@ -176,5 +176,8 @@ cython_debug/
 # VSCode
 .vscode
 
+# PyCharm
+.idea
+
 # SQLite
 *.db

@@ -1,8 +1,10 @@
 from typing import Type, TypeVar
 
+from repo.core.exceptions import BaseRepoException
+
 TObject = TypeVar("TObject")
 
-BASE_EXCEPTION = Exception
+BASE_EXCEPTION = BaseRepoException
 BASE_MSG = "Not found."
 
 
@@ -21,6 +23,8 @@ def get_object_or_404(
         obj (TObject | None): Object to return
         msg (str | None, optional): Message for exception.
             Defaults to None
+        exc (Type[Exception]): Exception to raise.
+            Defaults to BASE_EXCEPTION
 
     Raises:
         BASE_EXCEPTION: If object is None

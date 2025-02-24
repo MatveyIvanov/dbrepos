@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Type, TypeVar
 
 from sqlalchemy import Row
 
+from repo.core.exceptions import BaseRepoException
+
 if TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
@@ -22,7 +24,7 @@ def strict(func: Callable | None = None) -> Callable:
             strict_ = kwargs.get("strict", True)
             try:
                 return func(*args, **kwargs)
-            except Exception:  # TODO
+            except BaseRepoException:
                 if strict_:
                     raise
                 return None
@@ -49,7 +51,7 @@ def handle_error(
             Defaults to None
         logger (logging.Logger, optional): Logger for errors.
             Defaults to common_logger
-        exception (Tuple[Type[Exception], ...], optional): Exceptions to catch.
+        exceptions (Tuple[Type[Exception], ...], optional): Exceptions to catch.
             Defaults to (Exception,)
 
     Returns:

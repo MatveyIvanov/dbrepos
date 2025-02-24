@@ -98,6 +98,7 @@ class AlchemyRepo(IRepo[TTable]):
     @handle_error
     @strict
     @session
+    @convert
     def get_by_field(
         self,
         *,
@@ -112,9 +113,12 @@ class AlchemyRepo(IRepo[TTable]):
         qs = self._resolve_extra(
             qs=self._select(),
             extra=extra,
-        ).filter(getattr(self.table_class, name) == value)
+        ).filter(
+            self.table_class.c[name]  # TODO: alternative table definition support
+            == value
+        )
         first = session.execute(qs).first()
-        return get_object_or_404(first[0] if first else None)
+        return get_object_or_404(first if first else None)
 
     @handle_error
     @strict
