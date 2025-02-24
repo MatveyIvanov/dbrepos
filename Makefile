@@ -12,3 +12,7 @@ black:
 	poetry run black .
 isort:
 	poetry run isort . --profile black --filter-files
+install-git-hooks:
+	poetry run pre-commit install --hook-type pre-push
+uninstall-git-hooks:
+	poetry run pre-commit uninstall -t pre-push
