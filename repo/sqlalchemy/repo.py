@@ -118,11 +118,12 @@ class AlchemyRepo(IRepo[TTable]):
             == value
         )
         first = session.execute(qs).first()
-        return get_object_or_404(first if first else None)
+        return get_object_or_404(first)
 
     @handle_error
     @strict
     @session
+    @convert
     def get_by_filters(
         self,
         *,
@@ -138,7 +139,7 @@ class AlchemyRepo(IRepo[TTable]):
             extra=extra,
         ).filter(filters.compile())
         first = session.execute(qs).first()
-        return session.execute(first[0] if first else None)
+        return get_object_or_404(first)
 
     @handle_error
     @session
@@ -158,6 +159,7 @@ class AlchemyRepo(IRepo[TTable]):
             strict=strict,
             extra=extra,
             session=session,
+            convert_to=convert_to,
         )
 
     @handle_error

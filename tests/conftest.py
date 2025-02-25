@@ -1,13 +1,17 @@
 import sqlite3
-from typing import Any, Literal
+from typing import Any, Literal, Callable, Type
 
 import pytest
 import sqlalchemy as sa
 
+from repo.core.abstract import IFilter, IFilterSeq
+from repo.django.filters import DjangoFilter, DjangoFilterSeq
+from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
 from tests.django.tables.models import DjangoTable
 from tests.fixtures.django import *  # noqa:F401,F403
 from tests.fixtures.sqlalchemy import *  # noqa:F401,F403
 from tests.sqlalchemy import AlchemyTable
+
 
 DB_NAME = "test.db"
 # NOTE: I fucking hate django (or pytest-django?)
@@ -161,3 +165,25 @@ def select_one(alchemy_session_factory):
         }[runner]()
 
     return _select
+
+
+@pytest.fixture
+def Filter() -> Callable[[Runner], Type[IFilter]]:
+    def _filter(runner):
+        return {
+            "alchemy": AlchemyFilter,
+            "django": DjangoFilter,
+        }[runner]
+
+    return _filter
+
+
+@pytest.fixture
+def FilterSeq() -> Callable[[Runner], Type[IFilterSeq]]:
+    def _filter(runner):
+        return {
+            "alchemy": AlchemyFilterSeq,
+            "django": DjangoFilterSeq,
+        }[runner]
+
+    return _filter

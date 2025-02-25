@@ -54,16 +54,14 @@ class AlchemyFilter(IFilter[TTable, Column, TFieldValue]):
         value: TFieldValue | None = None,
         operator_: operator = operator.eq,
     ) -> None:
-        self.column: Column = getattr(  # type:ignore[assignment]
-            table_class, column_name, None
-        )
+        self.column: Column = table_class.c.get(column_name, None)
         self.column_name = column_name
         self.value = value or None
         self.operator_ = operator_
 
         assert (
             self.column is not None
-        ), f"Model {table_class.__name__} has no column named {column_name}."
+        ), f"Model {table_class.name} has no column named {column_name}."
 
     def __call__(
         self, value: TFieldValue, operator_: operator = operator.eq
@@ -82,14 +80,17 @@ class AlchemyFilterSeq(IFilterSeq[BinaryExpression[bool] | ColumnElement[bool]])
             IFilter[TTable, Column, TFieldValue]
             | IFilterSeq[BinaryExpression[bool] | ColumnElement[bool]]
         ),
-    ):
+    ) -> None:
         self.mode_ = mode_
         self.filters = filters
+
+        assert len(filters) > 0, "No filters provided."
 
     def compile(self) -> BinaryExpression[bool] | ColumnElement[bool]:
         result = []
         for filter in self.filters:
             if isinstance(filter, IFilter):
+                print(filter.column, filter.value)
                 result.append(
                     _OPERATOR_TO_ORM[filter.operator_](
                         filter.column,

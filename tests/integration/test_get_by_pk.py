@@ -3,16 +3,15 @@ from django.core.exceptions import FieldError
 
 from tests.django.tables.models import DjangoTable
 from tests.entities import TableEntity
-from tests.parametrize import multi_repo_parametrize, strictness_parametrize
+from tests.parametrize import multi_repo_parametrize, strictness_by_pk_parametrize
 
 
 @pytest.mark.django_db
 @pytest.mark.integration
 @multi_repo_parametrize
-@strictness_parametrize("name", "name", (KeyError, FieldError))
-def test_get_by_field_strictness(
+@strictness_by_pk_parametrize(1)
+def test_get_by_pk_strictness(
     preload,
-    name,
     value,
     strict,
     expected_preload_index,
@@ -30,16 +29,14 @@ def test_get_by_field_strictness(
 
     if expected_error:
         with pytest.raises(expected_error):
-            repo.get_by_field(
-                name=name,
-                value=value,
+            repo.get_by_pk(
+                pk=value,
                 strict=strict,
                 convert_to=TableEntity,
             )
     else:
-        result = repo.get_by_field(
-            name=name,
-            value=value,
+        result = repo.get_by_pk(
+            pk=value,
             strict=strict,
             convert_to=TableEntity,
         )

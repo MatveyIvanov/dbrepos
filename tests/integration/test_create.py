@@ -5,19 +5,12 @@ import pytest
 
 from repo.core.abstract import IRepo
 from tests.entities import InsertTableEntity, TableEntity
+from tests.parametrize import multi_repo_parametrize
 
 
 @pytest.mark.django_db
 @pytest.mark.integration
-@pytest.mark.parametrize(
-    "repo,runner",
-    (
-        ("django_repo", "django"),
-        ("django_repo_soft_deletable", "django"),
-        ("alchemy_repo", "alchemy"),
-        ("alchemy_repo_soft_deletable", "alchemy"),
-    ),
-)
+@multi_repo_parametrize
 @pytest.mark.parametrize(
     "entity",
     (

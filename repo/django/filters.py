@@ -59,6 +59,8 @@ class DjangoFilterSeq(IFilterSeq):
         self.mode_ = mode_
         self.filters = filters
 
+        assert len(self.filters) > 0, "No filters provided."
+
     def compile(self) -> Q:
         result = []
         for filter in self.filters:
@@ -73,4 +75,6 @@ class DjangoFilterSeq(IFilterSeq):
             else:
                 result.append(filter.compile())
 
+        if len(result) == 1:
+            return result[0]
         return _MODE_TO_ORM[self.mode_](*result)
