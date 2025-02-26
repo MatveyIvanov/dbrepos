@@ -1,14 +1,11 @@
 import pytest
 import sqlalchemy as sa
-from sqlalchemy import event
 from django.core.exceptions import FieldError
+from sqlalchemy import event
 
 from tests.django.tables.models import DjangoTable
 from tests.entities import TableEntity
-from tests.parametrize import (
-    multi_repo_parametrize,
-    strict_parametrize,
-)
+from tests.parametrize import multi_repo_parametrize, strict_parametrize
 
 
 @pytest.mark.django_db

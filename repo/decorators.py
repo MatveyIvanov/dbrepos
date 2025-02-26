@@ -5,11 +5,10 @@ from typing import (
     Any,
     Callable,
     Iterable,
+    Sequence,
     Tuple,
     Type,
     TypeVar,
-    Sequence,
-    Collection,
 )
 
 from sqlalchemy import Row

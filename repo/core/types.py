@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Tuple, Literal
+from typing import Literal, Tuple
 
 ORM = Literal["django", "alchemy"]
 

@@ -1,15 +1,13 @@
-from typing import Tuple, Iterable
+from typing import Tuple
 
 import pytest
 import sqlalchemy as sa
-from django.core.exceptions import FieldError
-from django.db.models import Manager, QuerySet
+from django.db.models import QuerySet
 
 from repo.core.exceptions import BaseRepoException
 from tests.django.tables.models import DjangoTable
-from tests.entities import TableEntity, InsertTableEntity
+from tests.entities import InsertTableEntity, TableEntity
 from tests.sqlalchemy import AlchemySyncDatabase
-
 
 multi_repo_parametrize = pytest.mark.parametrize(
     "repo,runner",

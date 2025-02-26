@@ -1,14 +1,12 @@
 import pytest
 
 from repo.core.abstract import mode, operator
-
 from tests.parametrize import (
-    session_parametrize,
-    multi_repo_parametrize,
-    methods_parametrize,
     convert_to_parametrize,
+    methods_parametrize,
+    multi_repo_parametrize,
+    session_parametrize,
 )
-
 
 # NOTE: inspect fails with overloaded methods,
 # so its easier to check this way

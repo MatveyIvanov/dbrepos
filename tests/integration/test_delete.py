@@ -1,3 +1,3 @@
 import pytest
 
-from tests.parametrize import session_parametrize, multi_repo_parametrize
+from tests.parametrize import multi_repo_parametrize, session_parametrize
