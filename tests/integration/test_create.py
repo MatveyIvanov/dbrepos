@@ -1,5 +1,4 @@
 from dataclasses import fields
-from datetime import datetime, timezone
 
 import pytest
 

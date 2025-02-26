@@ -1,15 +1,20 @@
 import pytest
+import sqlalchemy as sa
+from sqlalchemy import event
 from django.core.exceptions import FieldError
 
 from tests.django.tables.models import DjangoTable
 from tests.entities import TableEntity
-from tests.parametrize import multi_repo_parametrize, strictness_parametrize
+from tests.parametrize import (
+    multi_repo_parametrize,
+    strict_parametrize,
+)
 
 
 @pytest.mark.django_db
 @pytest.mark.integration
 @multi_repo_parametrize
-@strictness_parametrize("name", "name", (KeyError, FieldError))
+@strict_parametrize("name", "name", (KeyError, FieldError))
 def test_get_by_field_strictness(
     preload,
     name,

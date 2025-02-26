@@ -3,6 +3,8 @@ from typing import Any, Callable, Literal, Type
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy import event
+from sqlalchemy.orm import Session
 
 from repo.core.abstract import IFilter, IFilterSeq
 from repo.django.filters import DjangoFilter, DjangoFilterSeq
@@ -186,3 +188,36 @@ def FilterSeq() -> Callable[[Runner], Type[IFilterSeq]]:
         }[runner]
 
     return _filter
+
+
+# NOTE: This does not look good to me,
+# but is the only workaround I came up with.
+# If we use local variables inside SQLAlchemy event
+# listener, the first one passed will be used.
+# So, if we have parametrization, the values of first test-case
+# will be used in other ones.
+global RUNNER
+global EXPECT_USAGE
+global EXPECTED_RUNNER
+
+
+@pytest.fixture
+def check_session_usage() -> Callable[[Session, Runner, bool, Runner], None]:
+    def _check(session: Session, runner: Runner, expect_usage, expected_runner):
+        global RUNNER
+        global EXPECT_USAGE
+        global EXPECTED_RUNNER
+
+        RUNNER = runner
+        EXPECT_USAGE = expect_usage
+        EXPECTED_RUNNER = expected_runner
+
+        @event.listens_for(session, "do_orm_execute")
+        def check_used(*args, **kwargs):
+            global RUNNER
+            global EXPECT_USAGE
+            global EXPECTED_RUNNER
+
+            assert EXPECT_USAGE and RUNNER == EXPECTED_RUNNER
+
+    return _check

@@ -1,10 +1,21 @@
 import functools
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Type, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    Tuple,
+    Type,
+    TypeVar,
+    Sequence,
+    Collection,
+)
 
 from sqlalchemy import Row
 
 from repo.core.exceptions import BaseRepoException
+from repo.core.types import ORM
 
 if TYPE_CHECKING:
     from _typeshed import DataclassInstance
@@ -96,7 +107,7 @@ def session(func: Callable | None = None) -> Callable:
         def wrapper(self, *args: Any, **kwargs: Any) -> Any:
             if (
                 factory := getattr(self, "session_factory", None)
-            ) is None or "session" in kwargs.keys():
+            ) is None or kwargs.get("session", None) is not None:
                 return func(self, *args, **kwargs)
 
             with factory() as session:
@@ -111,17 +122,35 @@ def session(func: Callable | None = None) -> Callable:
     return decorator(func)
 
 
-def convert(func: Callable | None = None, *, many: bool = False):
+def convert(
+    func: Callable | None = None,
+    *,
+    many: bool = False,
+    orm: ORM | None = None,
+):
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             result = func(*args, **kwargs)
-            convert_to = kwargs.get("convert_to", None)
+            convert_to: Type | None = kwargs.get("convert_to", None)
             if convert_to is None:
+                if (
+                    not many
+                    and orm is not None
+                    and orm == "alchemy"
+                    and isinstance(result, Sequence)
+                    and result
+                    and isinstance(result[0], Iterable)
+                ):
+                    # unpack (imho, weird) alchemy single-row
+                    # [(value, value, value)] to (value, value, value)
+                    return result[0]
                 return result
 
             def as_one(instance):
-                if isinstance(result, Iterable):
+                if isinstance(result, Sequence):
+                    if result and isinstance(result[0], Iterable):
+                        return convert_to(*result[0])
                     return convert_to(*result)
                 if isinstance(result, Row):
                     return convert_to(*result[0])

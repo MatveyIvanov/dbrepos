@@ -248,7 +248,7 @@ class DjangoRepo(IRepo[TTable]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> QuerySet[TTable]:
-        return self._resolve_extra(qs=self.table_class.objects, extra=extra)
+        return self._resolve_extra(qs=self.table_class.objects.all(), extra=extra)
 
     def _all_by_field(
         self,

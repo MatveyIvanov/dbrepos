@@ -80,7 +80,7 @@ class AlchemyRepo(IRepo[TTable]):
 
     @handle_error
     @session
-    @convert
+    @convert(orm="alchemy")
     def create(
         self,
         entity: TEntity,
@@ -98,7 +98,7 @@ class AlchemyRepo(IRepo[TTable]):
     @handle_error
     @strict
     @session
-    @convert
+    @convert(orm="alchemy")
     def get_by_field(
         self,
         *,
@@ -123,7 +123,7 @@ class AlchemyRepo(IRepo[TTable]):
     @handle_error
     @strict
     @session
-    @convert
+    @convert(orm="alchemy")
     def get_by_filters(
         self,
         *,
@@ -164,6 +164,7 @@ class AlchemyRepo(IRepo[TTable]):
 
     @handle_error
     @session
+    @convert(orm="alchemy", many=True)
     def all(
         self,
         *,
@@ -174,10 +175,11 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         return session.execute(  # type:ignore[return-value] # Though Result is iterable
             self._resolve_extra(qs=self._select(), extra=extra)
-        )
+        ).all()
 
     @handle_error
     @session
+    @convert(orm="alchemy", many=True)
     def all_by_field(
         self,
         *,
@@ -192,12 +194,11 @@ class AlchemyRepo(IRepo[TTable]):
             qs=self._select(),
             extra=extra,
         ).filter(getattr(self.table_class, name) == value)
-        result = session.execute(qs)
-        first = result.first()
-        return get_object_or_404(first[0] if first else None)
+        return session.execute(qs).all()
 
     @handle_error
     @session
+    @convert(orm="alchemy", many=True)
     def all_by_filters(
         self,
         *,
@@ -213,7 +214,7 @@ class AlchemyRepo(IRepo[TTable]):
         ).filter(filters.compile())
         return session.execute(  # type:ignore[return-value] # Though Result is iterable
             qs
-        )
+        ).all()
 
     @handle_error
     @session
@@ -238,6 +239,7 @@ class AlchemyRepo(IRepo[TTable]):
             ),
             extra=extra,
             session=session,
+            convert_to=convert_to,
         )
 
     @handle_error
@@ -253,7 +255,7 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         session.execute(
             self._resolve_extra(qs=self._update(), extra=extra)
-            .filter(getattr(self.table_class, self.pk_field_name) == pk)
+            .filter(self.table_class.c[self.pk_field_name] == pk)
             .values(**values)
         )
 
@@ -270,7 +272,7 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         session.execute(
             self._resolve_extra(qs=self._update(), extra=extra)
-            .filter(getattr(self.table_class, self.pk_field_name).in_(pks))
+            .filter(self.table_class.c[self.pk_field_name].in_(pks))
             .values(**values)
         )
 
@@ -286,11 +288,7 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         session.execute(
             self._resolve_extra(qs=self._delete(), extra=extra).filter(
-                getattr(
-                    self.table_class,
-                    self.pk_field_name,
-                )
-                == pk
+                self.table_class.c[self.pk_field_name] == pk
             )
         )
 
@@ -307,7 +305,7 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         session.execute(
             self._resolve_extra(qs=self._delete(), extra=extra).filter(
-                getattr(self.table_class, name) == value
+                self.table_class.c[name] == value
             )
         )
 
@@ -324,7 +322,7 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         qs = (
             self._resolve_extra(qs=self._select(), extra=extra)
-            .filter(getattr(self.table_class, name) == value)
+            .filter(self.table_class.c[name] == value)
             .limit(1)
         )
         result = session.execute(qs)

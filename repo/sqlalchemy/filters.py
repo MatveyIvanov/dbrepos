@@ -90,7 +90,6 @@ class AlchemyFilterSeq(IFilterSeq[BinaryExpression[bool] | ColumnElement[bool]])
         result = []
         for filter in self.filters:
             if isinstance(filter, IFilter):
-                print(filter.column, filter.value)
                 result.append(
                     _OPERATOR_TO_ORM[filter.operator_](
                         filter.column,

@@ -5,13 +5,16 @@ import pytest
 from repo.core.abstract import mode, operator
 from tests.django.tables.models import DjangoTable
 from tests.entities import TableEntity
-from tests.parametrize import multi_repo_parametrize, strictness_parametrize
+from tests.parametrize import (
+    multi_repo_parametrize,
+    strict_parametrize,
+)
 
 
 @pytest.mark.django_db
 @pytest.mark.integration
 @multi_repo_parametrize
-@strictness_parametrize("name", "name", AssertionError)
+@strict_parametrize("name", "name", AssertionError)
 def test_get_by_filters_strictness(
     preload,
     name,
