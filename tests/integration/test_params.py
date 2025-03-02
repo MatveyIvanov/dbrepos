@@ -1,5 +1,5 @@
 import functools
-from typing import Callable, Any, Literal, Set
+from typing import Any, Callable, Literal, Set
 
 import pytest
 
@@ -9,13 +9,13 @@ from tests.conftest import Runner
 from tests.entities import TableEntity
 from tests.parametrize import (
     convert_to_parametrize,
+    for_update_parametrize,
+    include_soft_deleted_parametrize,
     methods_parametrize,
     multi_repo_parametrize,
-    session_parametrize,
-    for_update_parametrize,
-    strict_parametrize,
-    include_soft_deleted_parametrize,
     order_by_parametrize,
+    session_parametrize,
+    strict_parametrize,
 )
 
 # NOTE: inspect fails with overloaded methods,

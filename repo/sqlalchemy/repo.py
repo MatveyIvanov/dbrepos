@@ -3,13 +3,13 @@ from dataclasses import asdict
 from typing import (
     TYPE_CHECKING,
     Iterable,
+    List,
     Mapping,
     Sequence,
     Tuple,
     Type,
     TypeVar,
     cast,
-    List,
 )
 
 if TYPE_CHECKING:

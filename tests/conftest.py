@@ -3,9 +3,9 @@ from typing import Any, Callable, Literal, Type
 
 import pytest
 import sqlalchemy as sa
+from django.db import connection, reset_queries
 from sqlalchemy import event
 from sqlalchemy.orm import Session
-from django.db import connection, reset_queries
 
 from repo.core.abstract import IFilter, IFilterSeq
 from repo.django.filters import DjangoFilter, DjangoFilterSeq
