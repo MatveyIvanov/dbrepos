@@ -5,6 +5,7 @@ import pytest
 import sqlalchemy as sa
 from sqlalchemy import event
 from sqlalchemy.orm import Session
+from django.db import connection, reset_queries
 
 from repo.core.abstract import IFilter, IFilterSeq
 from repo.django.filters import DjangoFilter, DjangoFilterSeq
@@ -26,6 +27,7 @@ DB_NAME = "test.db"
 # P.S. Possibly I'm the dumb one here, and there is a way to
 # use sqlite-validating queries beside django queries...
 Runner = Literal["alchemy", "django"]
+ReturnType = Literal["null", "instance", "instances", "exists", "count"]
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -102,10 +104,7 @@ def insert(alchemy_session_factory):
         def _django():
             return TABLE_TO_DJANGO[table].objects.create(**values)
 
-        return {
-            "alchemy": _alchemy,
-            "django": _django,
-        }[runner]()
+        return {"alchemy": _alchemy, "django": _django}[runner]()
 
     return _insert
 
@@ -120,10 +119,7 @@ def count(alchemy_session_factory):
         def _django():
             return TABLE_TO_DJANGO[table].objects.count()
 
-        return {
-            "alchemy": _alchemy,
-            "django": _django,
-        }[runner]()
+        return {"alchemy": _alchemy, "django": _django}[runner]()
 
     return _count
 
@@ -138,27 +134,37 @@ def select(alchemy_session_factory):
         def _django():
             return TABLE_TO_DJANGO[table].objects.all().values_list()
 
-        return {
-            "alchemy": _alchemy,
-            "django": _django,
-        }[runner]()
+        return {"alchemy": _alchemy, "django": _django}[runner]()
 
     return _select
 
 
 @pytest.fixture
 def select_one(alchemy_session_factory):
-    def _select(table: str, pk: Any, runner: Runner):
+    def _select(
+        table: str,
+        pk: Any,
+        runner: Runner,
+        convert_to=None,
+    ):
         def _alchemy():
             with alchemy_session_factory() as session:
-                return session.execute(
+                result = session.execute(
                     sa.select(TABLE_TO_ALCHEMY[table]).filter(
                         TABLE_TO_ALCHEMY[table].c.id == pk
                     )
-                ).one()
+                ).first()
+                return (
+                    result
+                    if result is None or convert_to is None
+                    else convert_to(*result)
+                )
 
         def _django():
-            return TABLE_TO_DJANGO[table].objects.filter(pk=pk).values_list().first()
+            result = TABLE_TO_DJANGO[table].objects.filter(pk=pk).values_list().first()
+            return (
+                result if result is None or convert_to is None else convert_to(*result)
+            )
 
         return {
             "alchemy": _alchemy,
@@ -171,10 +177,7 @@ def select_one(alchemy_session_factory):
 @pytest.fixture
 def Filter() -> Callable[[Runner], Type[IFilter]]:
     def _filter(runner):
-        return {
-            "alchemy": AlchemyFilter,
-            "django": DjangoFilter,
-        }[runner]
+        return {"alchemy": AlchemyFilter, "django": DjangoFilter}[runner]
 
     return _filter
 
@@ -182,10 +185,7 @@ def Filter() -> Callable[[Runner], Type[IFilter]]:
 @pytest.fixture
 def FilterSeq() -> Callable[[Runner], Type[IFilterSeq]]:
     def _filter(runner):
-        return {
-            "alchemy": AlchemyFilterSeq,
-            "django": DjangoFilterSeq,
-        }[runner]
+        return {"alchemy": AlchemyFilterSeq, "django": DjangoFilterSeq}[runner]
 
     return _filter
 
@@ -219,5 +219,39 @@ def check_session_usage() -> Callable[[Session, Runner, bool, Runner], None]:
             global EXPECTED_RUNNER
 
             assert EXPECT_USAGE and RUNNER == EXPECTED_RUNNER
+
+    return _check
+
+
+global EXPECT_LOCK
+
+
+@pytest.fixture
+def check_row_locking() -> Callable[[Runner, bool, Literal["before", "after"]], None]:
+    def _check(runner: Runner, expect_lock: bool, when: Literal["before", "after"]):
+        def _alchemy():
+            if when == "after":
+                return
+
+            global EXPECT_LOCK
+
+            EXPECT_LOCK = expect_lock
+
+            @event.listens_for(Session, "do_orm_execute")
+            def check_locked(orm_execute_state: sa.orm.ORMExecuteState):
+                global EXPECT_LOCK
+
+                if EXPECT_LOCK:
+                    assert "FOR UPDATE" in str(orm_execute_state.statement)
+
+        def _django():
+            if when == "before":
+                reset_queries()
+            else:
+                assert len(connection.queries) == 1
+                if expect_lock:
+                    assert "FOR UPDATE" in connection.queries[0]
+
+        return {"alchemy": _alchemy, "django": _django}[runner]()
 
     return _check

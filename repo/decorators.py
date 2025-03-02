@@ -147,12 +147,12 @@ def convert(
                 return result
 
             def as_one(instance):
-                if isinstance(result, Sequence):
-                    if result and isinstance(result[0], Iterable):
-                        return convert_to(*result[0])
-                    return convert_to(*result)
-                if isinstance(result, Row):
-                    return convert_to(*result[0])
+                if isinstance(instance, Sequence):
+                    if instance and isinstance(instance[0], Iterable):
+                        return convert_to(*instance[0])
+                    return convert_to(*instance)
+                if isinstance(instance, Row):
+                    return convert_to(*instance[0])
                 return instance
 
             if not many:

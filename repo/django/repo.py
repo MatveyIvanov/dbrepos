@@ -304,13 +304,12 @@ class DjangoRepo(IRepo[TTable]):
         extra: Extra | None,
     ) -> QuerySet[TTable]:
         if not extra:
-            return qs
+            extra = Extra()
+        qs = qs.order_by(*(extra.ordering or self.default_ordering))
         if extra.for_update:
             qs = qs.select_for_update()
         if self.is_soft_deletable and not extra.include_soft_deleted:
             qs = qs.filter(is_deleted=False)
-        if extra.ordering:
-            qs = qs.order_by(*extra.ordering)
         if extra.select_related:
             qs = qs.select_related(*extra.select_related)
         return qs

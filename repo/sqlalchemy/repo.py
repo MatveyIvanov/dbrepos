@@ -9,6 +9,7 @@ from typing import (
     Type,
     TypeVar,
     cast,
+    List,
 )
 
 if TYPE_CHECKING:
@@ -75,7 +76,7 @@ class AlchemyRepo(IRepo[TTable]):
             session_factory is not None
         ), "Session factory is required for AlchemyRepo"
         assert hasattr(self.table_class, self.pk_field_name) or hasattr(
-            getattr(self.table_class, "columns", dict()), self.pk_field_name
+            self.table_class.c, self.pk_field_name
         ), "Wrong pk_field_name"
 
     @handle_error
@@ -193,7 +194,7 @@ class AlchemyRepo(IRepo[TTable]):
         qs = self._resolve_extra(
             qs=self._select(),
             extra=extra,
-        ).filter(getattr(self.table_class, name) == value)
+        ).filter(self.table_class.c[name] == value)
         return session.execute(qs).all()
 
     @handle_error
@@ -362,7 +363,7 @@ class AlchemyRepo(IRepo[TTable]):
                 qs=self._query(session),
                 extra=extra,
             )
-            .filter(getattr(self.table_class, name) == value)
+            .filter(self.table_class.c[name] == value)
             .count()
         )
 
@@ -408,13 +409,22 @@ class AlchemyRepo(IRepo[TTable]):
         extra: Extra | None,
     ) -> TQuery:
         if not extra:
-            return qs
+            extra = Extra()
         if isinstance(qs, (Select, Query)) and extra.for_update:
             qs = qs.with_for_update()
         if self.is_soft_deletable and not extra.include_soft_deleted:
-            qs = qs.filter(
-                getattr(self.table_class, "is_deleted") == False  # noqa:E712
+            qs = qs.filter(self.table_class.c["is_deleted"] == False)  # noqa:E712
+        if isinstance(qs, (Select, Query)):
+            qs = qs.order_by(
+                *self._compile_order_by(extra.ordering or self.default_ordering)
             )
-        if isinstance(qs, (Select, Query)) and extra.ordering:
-            qs = qs.order_by(*extra.ordering)
         return qs
+
+    def _compile_order_by(self, ordering: Tuple[str, ...]) -> List:
+        compiled = []
+        for column in ordering:
+            if column.startswith("-"):
+                compiled.append(self.table_class.c[column[1:]].desc())
+            else:
+                compiled.append(self.table_class.c[column].asc())
+        return compiled

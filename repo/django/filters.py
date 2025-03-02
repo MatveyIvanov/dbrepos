@@ -77,4 +77,7 @@ class DjangoFilterSeq(IFilterSeq):
 
         if len(result) == 1:
             return result[0]
-        return _MODE_TO_ORM[self.mode_](*result)
+        compiled = result.pop(0)
+        while result:
+            compiled = _MODE_TO_ORM[self.mode_](compiled, result.pop(0))
+        return compiled
