@@ -29,8 +29,9 @@ else:
 
 
 def strict(func: Callable | None = None) -> Callable:
-    def outer(func: Callable) -> Callable:
-        def inner(*args: Any, **kwargs: Any) -> Any:
+    def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             strict_ = kwargs.get("strict", True)
             try:
                 return func(*args, **kwargs)
@@ -39,12 +40,12 @@ def strict(func: Callable | None = None) -> Callable:
                     raise
                 return None
 
-        return inner
+        return wrapper
 
     if func is None:
-        return outer
+        return decorator
 
-    return outer(func)
+    return decorator(func)
 
 
 def handle_error(
@@ -74,8 +75,15 @@ def handle_error(
             try:
                 return func(*args, **kwargs)
             except exceptions as e:
-                logging.debug(str(e))
+                logger.debug(str(e))
                 logger.error(
+                    f"Expected error - {str(e)}",
+                    exc_info=e,
+                )
+                raise
+            except Exception as e:
+                logger.debug(str(e))
+                logger.critical(
                     f"Unexpected error - {str(e)}",
                     exc_info=e,
                 )
@@ -104,9 +112,11 @@ def session(func: Callable | None = None) -> Callable:
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(self, *args: Any, **kwargs: Any) -> Any:
-            if (
-                factory := getattr(self, "session_factory", None)
-            ) is None or kwargs.get("session", None) is not None:
+            factory = getattr(self, "session_factory", None)
+            if factory is None:
+                raise BaseRepoException("Cannot locate session_factory attribute.")
+
+            if kwargs.get("session", None) is not None:
                 return func(self, *args, **kwargs)
 
             with factory() as session:

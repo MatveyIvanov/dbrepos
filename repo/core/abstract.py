@@ -555,7 +555,9 @@ class mode(IntEnum):
 
 
 @runtime_checkable
-class IFilter(Protocol[TTable, TColumn, TFieldValue]):  # type:ignore[misc]
+class IFilter(
+    Protocol[TTable, TColumn, TFieldValue, TCompiledFilter]
+):  # type:ignore[misc]
     column: TColumn
     column_name: str
     value: TFieldValue | None
@@ -599,6 +601,12 @@ class IFilter(Protocol[TTable, TColumn, TFieldValue]):  # type:ignore[misc]
             ```
             uuid_filter = Filter(File, "uuid")([str(uuid4()), str(uuid4())], operator.in_)  # noqa:E501
             ```
+        """
+
+    def compile(self) -> TCompiledFilter:
+        """
+        Returns:
+            TCompiledFilter: Compiled filter for usage in orm or IFilterSeq class
         """
 
 

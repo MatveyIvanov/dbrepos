@@ -4,7 +4,7 @@ from typing import Callable, Dict, Type, TypeVar
 
 from django.db.models import Field, Model, Q  # type:ignore[import-untyped]
 
-from repo.core.abstract import IFilter, IFilterSeq, mode, operator
+from repo.core.abstract import IFilter, IFilterSeq, mode, operator, TCompiledFilter
 
 TModel = TypeVar("TModel", bound=Model)
 TFieldValue = TypeVar("TFieldValue")
@@ -27,7 +27,7 @@ _MODE_TO_ORM: Dict[mode, Callable[[Q], Q]] = {
 }
 
 
-class DjangoFilter(IFilter[TModel, Field, TFieldValue]):
+class DjangoFilter(IFilter[TModel, Field, TFieldValue, Q]):
     def __init__(
         self,
         table_class: Type[TModel],
@@ -53,6 +53,11 @@ class DjangoFilter(IFilter[TModel, Field, TFieldValue]):
         self.operator_ = operator_
         return self
 
+    def compile(self) -> Q:
+        return Q(
+            **{f"{self.column_name}{_OPERATOR_TO_LOOKUP[self.operator_]}": self.value}
+        )
+
 
 class DjangoFilterSeq(IFilterSeq):
     def __init__(self, /, mode_: mode, *filters: IFilter | IFilterSeq):
@@ -64,16 +69,7 @@ class DjangoFilterSeq(IFilterSeq):
     def compile(self) -> Q:
         result = []
         for filter in self.filters:
-            if isinstance(filter, IFilter):
-                result.append(
-                    Q(
-                        **{
-                            f"{filter.column_name}{_OPERATOR_TO_LOOKUP[filter.operator_]}": filter.value  # noqa:E501
-                        }
-                    )
-                )
-            else:
-                result.append(filter.compile())
+            result.append(filter.compile())
 
         if len(result) == 1:
             return result[0]

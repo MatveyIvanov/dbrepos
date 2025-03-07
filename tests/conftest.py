@@ -1,5 +1,6 @@
 import sqlite3
 from typing import Any, Callable, Literal, Type
+from unittest import mock
 
 import pytest
 import sqlalchemy as sa
@@ -16,7 +17,7 @@ from tests.fixtures.sqlalchemy import *  # noqa:F401,F403
 from tests.sqlalchemy import AlchemyTable
 
 DB_NAME = "test.db"
-# NOTE: I fucking hate django (or pytest-django?)
+# NOTE: I love django (or pytest-django?)
 # for forcing me to do this shit...
 # Validating via independent sqlite queries would be amazing,
 # but ofc we are doing everything in transaction
@@ -255,3 +256,18 @@ def check_row_locking() -> Callable[[Runner, bool, Literal["before", "after"]], 
         return {"alchemy": _alchemy, "django": _django}[runner]()
 
     return _check
+
+
+@pytest.fixture
+def session_mock():
+    return mock.Mock()
+
+
+@pytest.fixture
+def internal_session_mock():
+    return mock.Mock()
+
+
+@pytest.fixture
+def session_factory_mock(internal_session_mock, context_manager_mock_factory):
+    return mock.Mock(return_value=context_manager_mock_factory(internal_session_mock))

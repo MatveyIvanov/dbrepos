@@ -4,7 +4,6 @@ from repo.core.exceptions import BaseRepoException
 
 TObject = TypeVar("TObject")
 
-BASE_EXCEPTION = BaseRepoException
 BASE_MSG = "Not found."
 
 
@@ -12,7 +11,7 @@ def get_object_or_404(
     obj: TObject | None,
     *,
     msg: str | None = None,
-    exc: Type[Exception] = BASE_EXCEPTION,
+    exc: Type[Exception] = BaseRepoException,
 ) -> TObject:
     """
     Similar to Django shortcut.

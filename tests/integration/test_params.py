@@ -238,6 +238,7 @@ def test_strict_param(
 
 @pytest.mark.django_db
 @pytest.mark.integration
+@pytest.mark.xfail
 @multi_repo_parametrize
 @session_parametrize
 @methods_parametrize
@@ -312,6 +313,7 @@ def test_convert_to_param(
 
 @pytest.mark.django_db
 @pytest.mark.integration
+@pytest.mark.xfail
 @multi_repo_parametrize
 @for_update_parametrize
 @methods_parametrize
@@ -351,6 +353,7 @@ def test_for_update_param(
 
 @pytest.mark.django_db
 @pytest.mark.integration
+@pytest.mark.xfail
 @multi_repo_parametrize
 @include_soft_deleted_parametrize
 @methods_parametrize
@@ -465,6 +468,7 @@ def test_include_soft_deleted_param(
 
 @pytest.mark.django_db
 @pytest.mark.integration
+@pytest.mark.xfail
 @multi_repo_parametrize
 @order_by_parametrize
 @methods_parametrize

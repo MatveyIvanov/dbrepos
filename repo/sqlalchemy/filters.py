@@ -46,7 +46,14 @@ _MODE_TO_ORM: Dict[
 }
 
 
-class AlchemyFilter(IFilter[TTable, Column, TFieldValue]):
+class AlchemyFilter(
+    IFilter[
+        TTable,
+        Column,
+        TFieldValue,
+        BinaryExpression[bool] | ColumnElement[bool],
+    ]
+):
     def __init__(
         self,
         table_class: Type[TTable],
@@ -70,6 +77,9 @@ class AlchemyFilter(IFilter[TTable, Column, TFieldValue]):
         self.operator_ = operator_
         return self
 
+    def compile(self) -> BinaryExpression[bool] | ColumnElement[bool]:
+        return _OPERATOR_TO_ORM[self.operator_](self.column, self.value)
+
 
 class AlchemyFilterSeq(IFilterSeq[BinaryExpression[bool] | ColumnElement[bool]]):
     def __init__(
@@ -89,14 +99,6 @@ class AlchemyFilterSeq(IFilterSeq[BinaryExpression[bool] | ColumnElement[bool]])
     def compile(self) -> BinaryExpression[bool] | ColumnElement[bool]:
         result = []
         for filter in self.filters:
-            if isinstance(filter, IFilter):
-                result.append(
-                    _OPERATOR_TO_ORM[filter.operator_](
-                        filter.column,
-                        filter.value,
-                    )
-                )
-            else:
-                result.append(filter.compile())
+            result.append(filter.compile())
 
         return _MODE_TO_ORM[self.mode_](*result)
