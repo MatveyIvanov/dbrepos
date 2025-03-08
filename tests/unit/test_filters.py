@@ -1,8 +1,8 @@
 import pytest
 from django.db.models import Q
 
-from repo.django.filters import DjangoFilter
 from repo.core.abstract import operator
+from repo.django.filters import DjangoFilter
 from repo.sqlalchemy.filters import AlchemyFilter
 from tests.django.tables.models import DjangoTable
 from tests.sqlalchemy import AlchemyTable

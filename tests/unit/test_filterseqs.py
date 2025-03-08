@@ -4,8 +4,8 @@ import pytest
 from django.db.models import Q
 
 from repo.core.abstract import mode, operator
-from repo.django.filters import DjangoFilterSeq, DjangoFilter
-from repo.sqlalchemy.filters import AlchemyFilterSeq, AlchemyFilter
+from repo.django.filters import DjangoFilter, DjangoFilterSeq
+from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
 from tests.django.tables.models import DjangoTable
 from tests.sqlalchemy import AlchemyTable
 

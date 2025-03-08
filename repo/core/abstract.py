@@ -29,7 +29,6 @@ if TYPE_CHECKING:
 else:
     TEntity = TypeVar("TEntity")
     TResult = TypeVar("TEntity", bound=TTable)
-TCompiledFilter = TypeVar("TCompiledFilter", covariant=True)
 TPrimaryKey = TypeVar("TPrimaryKey", int, str, covariant=True)
 TFieldValue = TypeVar("TFieldValue")
 TSession = TypeVar("TSession", covariant=True)
