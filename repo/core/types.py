@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from enum import IntEnum
 from typing import Literal, Tuple
 
 ORM = Literal["django", "alchemy"]
@@ -23,3 +24,18 @@ class Extra:
     include_soft_deleted: bool = False
     ordering: Tuple[str, ...] = field(default_factory=tuple)
     select_related: Tuple[str, ...] = field(default_factory=tuple)
+
+
+class operator(IntEnum):
+    eq = 0
+    lt = 1
+    le = 2
+    gt = 3
+    ge = 4
+    in_ = 5
+    is_ = 6
+
+
+class mode(IntEnum):
+    and_ = 0
+    or_ = 1

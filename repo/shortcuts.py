@@ -13,7 +13,8 @@ def get_object_or_404(
     msg: str | None = None,
     exc: Type[Exception] = BaseRepoException,
 ) -> TObject:
-    """
+    """Strict object retrieval
+
     Similar to Django shortcut.
     If object is None, exception is raised.
     Otherwise object is returned.
@@ -26,7 +27,7 @@ def get_object_or_404(
             Defaults to BASE_EXCEPTION
 
     Raises:
-        BASE_EXCEPTION: If object is None
+        BaseRepoException: If object is None
 
     Returns:
         TObject: Final object

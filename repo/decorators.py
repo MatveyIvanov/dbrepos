@@ -54,8 +54,7 @@ def handle_error(
     logger: logging.Logger = logger,
     exceptions: Tuple[Type[Exception], ...] = (Exception,),
 ) -> Callable:
-    """
-    Decorator that handles any error and logs this error to specified logger
+    """Decorator that handles any error and logs this error to specified logger
 
     Args:
         func (Callable | None, optional): Function to decorate.
@@ -98,8 +97,8 @@ def handle_error(
 
 
 def session(func: Callable | None = None) -> Callable:
-    """
-    Decorator that injects session as `session` kwarg.
+    """Decorator that injects session as `session` kwarg
+
     If session already in kwargs, new session will not be injected
 
     Args:

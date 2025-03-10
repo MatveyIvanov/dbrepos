@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 from django.db.models import Q
 
-from repo.core.abstract import mode, operator
+from repo.core.types import mode
 from repo.django.filters import DjangoFilter, DjangoFilterSeq
 from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
 from tests.django.tables.models import DjangoTable

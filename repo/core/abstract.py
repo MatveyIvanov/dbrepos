@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from contextlib import AbstractContextManager
-from enum import IntEnum
 from typing import (
     TYPE_CHECKING,
     Iterable,
@@ -20,7 +19,7 @@ from typing import (
 if TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
-from repo.core.types import Extra
+from repo.core.types import Extra, mode, operator
 
 # NOTE: basically, we have 2 types of results:
 #   1. TResultDataclass, when conver_to param is specified;
@@ -57,8 +56,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         default_ordering: Tuple[str, ...] = ("id",),
         session_factory: AbstractContextManager | None = None,
     ) -> None:
-        """
-        Construct a repo instance
+        """Construct a repo instance
 
         Args:
             table_class (Type[TTable]): DB table class
@@ -80,8 +78,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         *,
         session: TSession | None = None,
     ) -> TResultORM:
-        """
-        Insert row
+        """Insert row
 
         Args:
             entity (TEntity): Entity that should be inserted
@@ -101,8 +98,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         convert_to: Type[TResultDataclass],
         session: TSession | None = None,
     ) -> TResultDataclass:
-        """
-        Insert row
+        """Insert row
 
         Args:
             entity (TEntity): Entity that should be inserted
@@ -125,8 +121,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultORM:
-        """
-        Get row by field:value
+        """Get row by field:value
 
         Args:
             name (str): Name of the field
@@ -158,8 +153,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultDataclass:
-        """
-        Get row by field:value
+        """Get row by field:value
 
         Args:
             name (str): Name of the field
@@ -191,8 +185,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultORM | None:
-        """
-        Get row by field:value
+        """Get row by field:value
 
         Args:
             name (str): Name of the field
@@ -221,8 +214,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultDataclass | None:
-        """
-        Get row by field:value
+        """Get row by field:value
 
         Args:
             name (str): Name of the field
@@ -250,8 +242,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultORM:
-        """
-        Get row by filters
+        """Get row by filters
 
         Args:
             filters (IFilterSeq): Filter sequence
@@ -281,8 +272,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultDataclass:
-        """
-        Get row by filters
+        """Get row by filters
 
         Args:
             filters (IFilterSeq): Filter sequence
@@ -312,8 +302,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultORM | None:
-        """
-        Get row by filters
+        """Get row by filters
 
         Args:
             filters (IFilterSeq): Filter sequence
@@ -340,8 +329,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultDataclass | None:
-        """
-        Get row by filters
+        """Get row by filters
 
         Args:
             filters (IFilterSeq): Filter sequence
@@ -368,8 +356,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultORM:
-        """
-        Get row by primary key
+        """Get row by primary key
 
         Args:
             pk (TPrimaryKey): Primary key value
@@ -399,8 +386,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultDataclass:
-        """
-        Get row by primary key
+        """Get row by primary key
 
         Args:
             pk (TPrimaryKey): Primary key value
@@ -430,8 +416,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultORM | None:
-        """
-        Get row by primary key
+        """Get row by primary key
 
         Args:
             pk (TPrimaryKey): Primary key value
@@ -458,8 +443,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> TResultDataclass | None:
-        """
-        Get row by primary key
+        """Get row by primary key
 
         Args:
             pk (TPrimaryKey): Primary key value
@@ -484,8 +468,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultORM]:
-        """
-        Select rows
+        """Select rows
 
         Args:
             extra (Extra | None, optional): Extra params.
@@ -506,8 +489,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass]:
-        """
-        Select rows
+        """Select rows
 
         Args:
             convert_to (Type[TResultDataclass]): Convert result to
@@ -530,8 +512,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultORM]:
-        """
-        Get rows by field:value
+        """Get rows by field:value
 
         Args:
             name (str): Name of the field
@@ -556,8 +537,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass]:
-        """
-        Get rows by field:value
+        """Get rows by field:value
 
         Args:
             name (str): Name of the field
@@ -581,8 +561,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultORM]:
-        """
-        Get rows by filters
+        """Get rows by filters
 
         Args:
             filters (IFilterSeq): Filter sequence
@@ -605,8 +584,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass]:
-        """
-        Get rows by filters
+        """Get rows by filters
 
         Args:
             filters (IFilterSeq): Filter sequence
@@ -629,8 +607,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultORM]:
-        """
-        Get rows by primary keys
+        """Get rows by primary keys
 
         Args:
             pks (Sequence[TPrimaryKey]): Primary key values
@@ -653,8 +630,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass]:
-        """
-        Get rows by primary keys
+        """Get rows by primary keys
 
         Args:
             pks (Sequence[TPrimaryKey]): Primary key values
@@ -677,8 +653,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> None:
-        """
-        Update row
+        """Update row
 
         Args:
             pk (TPrimaryKey): Primary key of row to update
@@ -699,8 +674,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> None:
-        """
-        Update rows
+        """Update rows
 
         Args:
             pks (Sequence[TPrimaryKey]): Primary keys of rows to update
@@ -720,8 +694,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> None:
-        """
-        Delete row by pk
+        """Delete row by pk
 
         Args:
             pk (TPrimaryKey): Primary key of row to delete
@@ -740,8 +713,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> None:
-        """
-        Delete row by field:value
+        """Delete row by field:value
 
         Args:
             name (str): Name of the field
@@ -761,8 +733,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> bool:
-        """
-        Check if row exists by field:value
+        """Check if row exists by field:value
 
         Args:
             name (str): Name of the field
@@ -784,8 +755,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> bool:
-        """
-        Check if row exists by filters
+        """Check if row exists by filters
 
         Args:
             filters (IFilterSeq): Filter sequence
@@ -807,8 +777,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> int:
-        """
-        Count rows by field:value
+        """Count rows by field:value
 
         Args:
             name (str): Name of the field
@@ -830,8 +799,7 @@ class IRepo(Protocol[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> int:
-        """
-        Count rows by filters
+        """Count rows by filters
 
         Args:
             filters (IFilterSeq): Filter sequence
@@ -844,21 +812,6 @@ class IRepo(Protocol[TTable, TResultORM]):
         Returns:
             int: Number of found rows
         """
-
-
-class operator(IntEnum):
-    eq = 0
-    lt = 1
-    le = 2
-    gt = 3
-    ge = 4
-    in_ = 5
-    is_ = 6
-
-
-class mode(IntEnum):
-    and_ = 0
-    or_ = 1
 
 
 @runtime_checkable
@@ -882,7 +835,8 @@ class IFilter(
         value: TFieldValue | None = None,
         operator_: operator = operator.eq,
     ) -> None:
-        """
+        """Initialize Filter
+
         Args:
             table_class (Type[TTable]): ORM model class
             column_name (str): Name of the column
@@ -897,8 +851,8 @@ class IFilter(
         value: TFieldValue,
         operator_: operator = operator.eq,
     ) -> Self:
-        """
-        Finish construction of the object.
+        """Finish construction of the object
+
         This is a 2nd-step construction for DI support
 
         Args:
@@ -916,7 +870,8 @@ class IFilter(
         """
 
     def compile(self) -> TCompiledFilter:
-        """
+        """Compile filter
+
         Returns:
             TCompiledFilter: Compiled filter for usage in orm or IFilterSeq class
         """
@@ -929,7 +884,8 @@ class IFilterSeq(Protocol[TCompiledFilter]):
         mode_: mode,
         *filters: IFilter | IFilterSeq[TCompiledFilter],
     ) -> None:
-        """
+        """Initialize Filter Sequence
+
         Args:
             mode_ (mode): Condition type between passed filters
 
@@ -952,7 +908,8 @@ class IFilterSeq(Protocol[TCompiledFilter]):
         """
 
     def compile(self) -> TCompiledFilter:
-        """
+        """Compile Filter Sequence
+
         Returns:
             TCompiledFilter: Compiled filter for usage in orm
         """
