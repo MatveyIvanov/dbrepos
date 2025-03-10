@@ -17,10 +17,11 @@ from repo.shortcuts import get_object_or_404 as _get_object_or_404
 TTable = TypeVar("TTable", bound=Model)
 if TYPE_CHECKING:
     TEntity = TypeVar("TEntity", bound=DataclassInstance, contravariant=True)
-    TResult = TypeVar("TResult", Model, DataclassInstance)
+    TResultDataclass = TypeVar("TResultDataclass", bound=DataclassInstance)
 else:
     TEntity = TypeVar("TEntity")
-    TResult = TypeVar("TResult")
+    TResultDataclass = TypeVar("TResultDataclass")
+TResultORM = TypeVar("TResultORM", bound=Model, covariant=True)
 TPrimaryKey = TypeVar("TPrimaryKey", int, str, covariant=True)
 TFieldValue = TypeVar("TFieldValue")
 TSession = TypeVar("TSession", covariant=True)
@@ -31,7 +32,7 @@ convert = _convert
 get_object_or_404 = _get_object_or_404
 
 
-class DjangoRepo(IRepo[TTable]):
+class DjangoRepo(IRepo[TTable, TResultORM]):
     def __init__(
         self,
         *,
@@ -48,28 +49,29 @@ class DjangoRepo(IRepo[TTable]):
         assert hasattr(self.table_class, self.pk_field_name), "Wrong pk_field_name"
 
     @handle_error
-    @convert
+    @convert(orm="django")
     def create(
         self,
         entity: TEntity,
         *,
-        session: TSession | None = None,
         convert_to: TResultDataclass | None = None,
-    ) -> TResult:
+        session: TSession | None = None,
+    ) -> TResultDataclass | TResultORM:
         return self.table_class.objects.create(**asdict(entity))
 
     @handle_error
     @strict
+    @convert(orm="django")
     def get_by_field(
         self,
         *,
         name: str,
         value: TFieldValue,
+        convert_to: TResultDataclass | None = None,
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResultDataclass | None = None,
-    ) -> TResult:
+    ) -> TResultDataclass | TResultORM | None:
         return get_object_or_404(
             self._resolve_extra(qs=self.table_class.objects, extra=extra)
             .filter(**{name: value})
@@ -78,15 +80,16 @@ class DjangoRepo(IRepo[TTable]):
 
     @handle_error
     @strict
+    @convert(orm="django")
     def get_by_filters(
         self,
         *,
         filters: IFilterSeq[Q],
+        convert_to: TResultDataclass | None = None,
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResultDataclass | None = None,
-    ) -> TResult:
+    ) -> TResultDataclass | TResultORM | None:
         return get_object_or_404(
             self._resolve_extra(qs=self.table_class.objects, extra=extra)
             .filter(filters.compile())
@@ -98,60 +101,66 @@ class DjangoRepo(IRepo[TTable]):
         self,
         pk: TPrimaryKey,
         *,
+        convert_to: TResultDataclass | None = None,
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResultDataclass | None = None,
-    ) -> TResult:
+    ) -> TResultDataclass | TResultORM | None:
         return self.get_by_field(
             name=self.pk_field_name,
             value=pk,
             strict=strict,
             extra=extra,
+            session=session,
+            convert_to=convert_to,
         )
 
     @handle_error
+    @convert(many=True, orm="django")
     def all(
         self,
         *,
+        convert_to: TResultDataclass | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResultDataclass | None = None,
-    ) -> Iterable[TResult]:
+    ) -> Iterable[TResultDataclass | TResultORM]:
         return self._all(extra=extra)
 
     @handle_error
+    @convert(many=True, orm="django")
     def all_by_field(
         self,
         *,
         name: str,
         value: TFieldValue,
+        convert_to: TResultDataclass | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResultDataclass | None = None,
-    ) -> Iterable[TResult]:
+    ) -> Iterable[TResultDataclass | TResultORM]:
         return self._all_by_field(name=name, value=value, extra=extra)
 
     @handle_error
+    @convert(many=True, orm="django")
     def all_by_filters(
         self,
         *,
         filters: IFilterSeq[Q],
+        convert_to: TResultDataclass | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResultDataclass | None = None,
-    ) -> Iterable[TResult]:
+    ) -> Iterable[TResultDataclass | TResultORM]:
         return self._all_by_filters(filters=filters, extra=extra)
 
     @handle_error
+    @convert(many=True, orm="django")
     def all_by_pks(
         self,
         pks: Sequence[TPrimaryKey],
         *,
+        convert_to: TResultDataclass | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResultDataclass | None = None,
-    ) -> Iterable[TResult]:
+    ) -> Iterable[TResultDataclass | TResultORM]:
         return self._all_by_pks(pks=pks, extra=extra)
 
     @handle_error

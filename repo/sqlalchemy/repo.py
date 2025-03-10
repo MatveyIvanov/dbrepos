@@ -18,19 +18,20 @@ if TYPE_CHECKING:
 from sqlalchemy import (
     ColumnElement,
     Delete,
+    Row,
     Select,
+    Table,
     Update,
     delete,
     insert,
     select,
     update,
-    Table,
-    Row,
 )
 from sqlalchemy.orm import Query, Session
 
 from repo.core.abstract import IFilterSeq, IRepo, mode, operator
 from repo.core.types import Extra
+from repo.decorators import TDataclass
 from repo.decorators import convert as _convert
 from repo.decorators import handle_error as _handle_error
 from repo.decorators import session as _session
@@ -38,14 +39,14 @@ from repo.decorators import strict as _strict
 from repo.shortcuts import get_object_or_404 as _get_object_or_404
 from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
 
-
 TTable = TypeVar("TTable", bound=Table)
 if TYPE_CHECKING:
     TEntity = TypeVar("TEntity", bound=DataclassInstance, contravariant=True)
-    TResult = TypeVar("TResult", Row[Tuple], Tuple, DataclassInstance)
+    TResultDataclass = TypeVar("TResultDataclass", bound=DataclassInstance)
 else:
     TEntity = TypeVar("TEntity")
-    TResult = TypeVar("TResult")
+    TResultDataclass = TypeVar("TResultDataclass")
+TResultORM = TypeVar("TResultORM", bound=Row, covariant=True)
 TPrimaryKey = TypeVar("TPrimaryKey", int, str, covariant=True)
 TFieldValue = TypeVar("TFieldValue")
 TSession = TypeVar("TSession", bound=Session, covariant=True)
@@ -59,7 +60,7 @@ convert = _convert
 get_object_or_404 = _get_object_or_404
 
 
-class AlchemyRepo(IRepo[TTable]):
+class AlchemyRepo(IRepo[TTable, TResultORM]):
     def __init__(
         self,
         *,
@@ -89,11 +90,11 @@ class AlchemyRepo(IRepo[TTable]):
         self,
         entity: TEntity,
         *,
+        convert_to: Type[TDataclass] | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult:
+    ) -> TResultDataclass | TResultORM:
         session = cast(TSession, session)
-        return session.execute(
+        return session.execute(  # type:ignore[return-value]
             insert(self.table_class)
             .values(**asdict(entity))
             .returning(self.table_class)
@@ -108,21 +109,21 @@ class AlchemyRepo(IRepo[TTable]):
         *,
         name: str,
         value: TFieldValue,
+        convert_to: Type[TDataclass] | None = None,
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult:
+    ) -> TResultDataclass | TResultORM | None:
         session = cast(TSession, session)
         qs = self._resolve_extra(
             qs=self._select(),
             extra=extra,
         ).filter(
-            self.table_class.c[name]  # TODO: alternative table definition support
+            self.table_class.c[name]  # type:ignore[index]
             == value
         )
         first = session.execute(qs).first()
-        return get_object_or_404(first)
+        return get_object_or_404(first)  # type:ignore[return-value]
 
     @handle_error
     @strict
@@ -132,18 +133,18 @@ class AlchemyRepo(IRepo[TTable]):
         self,
         *,
         filters: IFilterSeq[ColumnElement[bool]],
+        convert_to: Type[TDataclass] | None = None,
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult:
+    ) -> TResultDataclass | TResultORM | None:
         session = cast(TSession, session)
         qs = self._resolve_extra(
             qs=self._select(),
             extra=extra,
         ).filter(filters.compile())
         first = session.execute(qs).first()
-        return get_object_or_404(first)
+        return get_object_or_404(first)  # type:ignore[return-value]
 
     @handle_error
     @session
@@ -151,11 +152,11 @@ class AlchemyRepo(IRepo[TTable]):
         self,
         pk: TPrimaryKey,
         *,
+        convert_to: Type[TDataclass] | None = None,
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult:
+    ) -> TResultDataclass | TResultORM | None:
         session = cast(TSession, session)
         return self.get_by_field(
             name=self.pk_field_name,
@@ -172,10 +173,10 @@ class AlchemyRepo(IRepo[TTable]):
     def all(
         self,
         *,
+        convert_to: Type[TDataclass] | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TResult]:
+    ) -> Iterable[TResultDataclass | TResultORM]:
         session = cast(TSession, session)
         return session.execute(  # type:ignore[return-value] # Though Result is iterable
             self._resolve_extra(qs=self._select(), extra=extra)
@@ -189,16 +190,18 @@ class AlchemyRepo(IRepo[TTable]):
         *,
         name: str,
         value: TFieldValue,
+        convert_to: Type[TDataclass] | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TResult]:
+    ) -> Iterable[TResultDataclass | TResultORM]:
         session = cast(TSession, session)
         qs = self._resolve_extra(
             qs=self._select(),
             extra=extra,
-        ).filter(self.table_class.c[name] == value)
-        return session.execute(qs).all()
+        ).filter(
+            self.table_class.c[name] == value  # type:ignore[index]
+        )
+        return cast(Iterable, session.execute(qs).all())
 
     @handle_error
     @session
@@ -207,18 +210,16 @@ class AlchemyRepo(IRepo[TTable]):
         self,
         *,
         filters: IFilterSeq,
+        convert_to: Type[TDataclass] | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TResult]:
+    ) -> Iterable[TResultDataclass | TResultORM]:
         session = cast(TSession, session)
         qs = self._resolve_extra(
             qs=self._select(),
             extra=extra,
         ).filter(filters.compile())
-        return session.execute(  # type:ignore[return-value] # Though Result is iterable
-            qs
-        ).all()
+        return cast(Iterable, session.execute(qs).all())
 
     @handle_error
     @session
@@ -226,10 +227,10 @@ class AlchemyRepo(IRepo[TTable]):
         self,
         pks: Sequence[TPrimaryKey],
         *,
+        convert_to: Type[TDataclass] | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TResult]:
+    ) -> Iterable[TResultDataclass | TResultORM]:
         session = cast(TSession, session)
         return self.all_by_filters(
             filters=AlchemyFilterSeq(
@@ -259,7 +260,7 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         session.execute(
             self._resolve_extra(qs=self._update(), extra=extra)
-            .filter(self.table_class.c[self.pk_field_name] == pk)
+            .filter(self.table_class.c[self.pk_field_name] == pk)  # type:ignore[index]
             .values(**values)
         )
 
@@ -276,7 +277,9 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         session.execute(
             self._resolve_extra(qs=self._update(), extra=extra)
-            .filter(self.table_class.c[self.pk_field_name].in_(pks))
+            .filter(
+                self.table_class.c[self.pk_field_name].in_(pks)  # type:ignore[index]
+            )
             .values(**values)
         )
 
@@ -292,7 +295,7 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         session.execute(
             self._resolve_extra(qs=self._delete(), extra=extra).filter(
-                self.table_class.c[self.pk_field_name] == pk
+                self.table_class.c[self.pk_field_name] == pk  # type:ignore[index]
             )
         )
 
@@ -309,7 +312,7 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         session.execute(
             self._resolve_extra(qs=self._delete(), extra=extra).filter(
-                self.table_class.c[name] == value
+                self.table_class.c[name] == value  # type:ignore[index]
             )
         )
 
@@ -326,7 +329,7 @@ class AlchemyRepo(IRepo[TTable]):
         session = cast(TSession, session)
         qs = (
             self._resolve_extra(qs=self._select(), extra=extra)
-            .filter(self.table_class.c[name] == value)
+            .filter(self.table_class.c[name] == value)  # type:ignore[index]
             .limit(1)
         )
         result = session.execute(qs)
@@ -366,7 +369,7 @@ class AlchemyRepo(IRepo[TTable]):
                 qs=self._query(session),
                 extra=extra,
             )
-            .filter(self.table_class.c[name] == value)
+            .filter(self.table_class.c[name] == value)  # type:ignore[index]
             .count()
         )
 
@@ -400,7 +403,7 @@ class AlchemyRepo(IRepo[TTable]):
     def _delete(self) -> Delete:
         return delete(self.table_class)
 
-    def _query(self, session: TSession) -> Query:
+    def _query(self, session: TSession) -> Query:  # type:ignore[misc]
         return session.query(self.table_class)
 
     """ Utils """
@@ -416,7 +419,10 @@ class AlchemyRepo(IRepo[TTable]):
         if isinstance(qs, (Select, Query)) and extra.for_update:
             qs = qs.with_for_update()
         if self.is_soft_deletable and not extra.include_soft_deleted:
-            qs = qs.filter(self.table_class.c["is_deleted"] == False)  # noqa:E712
+            qs = qs.filter(
+                self.table_class.c["is_deleted"]  # type:ignore[index]
+                == False  # noqa:E712
+            )
         if isinstance(qs, (Select, Query)):
             qs = qs.order_by(
                 *self._compile_order_by(extra.ordering or self.default_ordering)
@@ -427,7 +433,9 @@ class AlchemyRepo(IRepo[TTable]):
         compiled = []
         for column in ordering:
             if column.startswith("-"):
-                compiled.append(self.table_class.c[column[1:]].desc())
+                compiled.append(
+                    self.table_class.c[column[1:]].desc()  # type:ignore[index]
+                )
             else:
-                compiled.append(self.table_class.c[column].asc())
+                compiled.append(self.table_class.c[column].asc())  # type:ignore[index]
         return compiled
