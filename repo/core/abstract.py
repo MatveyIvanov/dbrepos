@@ -14,22 +14,32 @@ from typing import (
     TypeVar,
     overload,
     runtime_checkable,
+    Self,
+    Any,
 )
+
+from django.db.models import Model  # type:ignore[import-untyped]
+from sqlalchemy import Row
 
 if TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
 from repo.core.types import Extra
 
+# NOTE: basically, we have 2 types of results:
+#   1. TResultDataclass, when conver_to param is specified;
+#   2. TResultORM, e.g. content of sqlalchemy.Row or django.db.models.Model.
 TTable = TypeVar("TTable")
+TTableCovariant = TypeVar("TTableCovariant", covariant=True)
 TColumn = TypeVar("TColumn")
 if TYPE_CHECKING:
     TEntity = TypeVar("TEntity", bound=DataclassInstance, contravariant=True)
-    TResult = TypeVar("TEntity", TTable, DataclassInstance)
+    TResultDataclass = TypeVar("TResultDataclass", bound=DataclassInstance)
 else:
     TEntity = TypeVar("TEntity")
-    TResult = TypeVar("TEntity", bound=TTable)
-TCompiledFilter = TypeVar("TCompiledFilter")
+    TResultDataclass = TypeVar("TResultDataclass")
+TResultORM = TypeVar("TResultORM")
+TCompiledFilter = TypeVar("TCompiledFilter", covariant=True)
 TPrimaryKey = TypeVar("TPrimaryKey", int, str, covariant=True)
 TFieldValue = TypeVar("TFieldValue")
 TSession = TypeVar("TSession", covariant=True)
@@ -72,8 +82,8 @@ class IRepo(Protocol[TTable]):
         entity: TEntity,
         *,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult:
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> TResultDataclass | TResultORM:
         """
         Insert row
 
@@ -82,23 +92,39 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
+            convert_to (Type[TResultDataclass] | None): Convert result to
 
         Returns:
-            TResult: Inserted row
+            TResultDataclass | TResultORM: Inserted row
         """
 
     @overload
+    def create(
+        self,
+        entity: TEntity,
+        *,
+        session: TSession | None = None,
+        convert_to: Literal[None] = None,
+    ) -> TResultORM: ...
+    @overload
+    def create(
+        self,
+        entity: TEntity,
+        *,
+        session: TSession | None = None,
+        convert_to: Type[TResultDataclass],
+    ) -> TResultDataclass: ...
+
     def get_by_field(
         self,
         *,
         name: str,
         value: TFieldValue,
-        strict: Literal[True] = True,
+        strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult:
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> TResultDataclass | TResultORM:
         """
         Get row by field:value
 
@@ -113,12 +139,23 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
+            convert_to (Type[TResultDataclass] | None): Convert result to
 
         Returns:
-            TResult: Found row
+            TResultDataclass | TResultORM: Found row
         """
 
+    @overload
+    def get_by_field(
+        self,
+        *,
+        name: str,
+        value: TFieldValue,
+        strict: Literal[True] = True,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> TResultDataclass | TResultORM: ...
     @overload
     def get_by_field(
         self,
@@ -128,38 +165,18 @@ class IRepo(Protocol[TTable]):
         strict: Literal[False],
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult | None:
-        """
-        Get row by field:value
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> TResultDataclass | TResultORM | None: ...
 
-        Args:
-            name (str): Name of the field
-            value (TFieldValue): Value of the field
-            strict (bool): Raise exception for missing row.
-                Works only for single-row select.
-                Defaults to True.
-            extra (Extra | None, optional): Extra params.
-                Defaults to None
-            session (TSession | None): Session to use for DB queries.
-                Defaults to None.
-                Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
-
-        Returns:
-            TResult | None: Found row or None
-        """
-
-    @overload
     def get_by_filters(
         self,
         *,
         filters: IFilterSeq,
-        strict: Literal[True] = True,
+        strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult:
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> TResultDataclass | TResultORM:
         """
         Get row by filters
 
@@ -173,12 +190,22 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
+            convert_to (Type[TResultDataclass] | None): Convert result to
 
         Returns:
-            TResult: Found row
+            TResultDataclass | TResultORM: Found row
         """
 
+    @overload
+    def get_by_filters(
+        self,
+        *,
+        filters: IFilterSeq,
+        strict: Literal[True] = True,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> TResultDataclass | TResultORM: ...
     @overload
     def get_by_filters(
         self,
@@ -187,13 +214,23 @@ class IRepo(Protocol[TTable]):
         strict: Literal[False],
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult | None:
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> TResultDataclass | TResultORM | None: ...
+
+    def get_by_pk(
+        self,
+        pk: TPrimaryKey,
+        *,
+        strict: bool = True,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> TResultDataclass | TResultORM:
         """
-        Get row by filters
+        Get row by primary key
 
         Args:
-            filters (IFilterSeq): Filter sequence
+            pk (TPrimaryKey): Primary key value
             strict (bool): Raise exception for missing row.
                 Works only for single-row select.
                 Defaults to True.
@@ -202,10 +239,10 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
+            convert_to (Type[TResultDataclass] | None): Convert result to
 
         Returns:
-            TResult | None: Found row or None
+            TResultDataclass | TResultORM: Found row
         """
 
     @overload
@@ -216,27 +253,8 @@ class IRepo(Protocol[TTable]):
         strict: Literal[True] = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult:
-        """
-        Get row by primary key
-
-        Args:
-            pk (TPrimaryKey): Primary key value
-            strict (bool): Raise exception for missing row.
-                Works only for single-row select.
-                Defaults to True.
-            extra (Extra | None, optional): Extra params.
-                Defaults to None
-            session (TSession | None): Session to use for DB queries.
-                Defaults to None.
-                Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
-
-        Returns:
-            TResult: Found row
-        """
-
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> TResultDataclass | TResultORM: ...
     @overload
     def get_by_pk(
         self,
@@ -245,34 +263,16 @@ class IRepo(Protocol[TTable]):
         strict: Literal[False],
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TResult | None:
-        """
-        Get row by primary key
-
-        Args:
-            pk (TPrimaryKey): Primary key value
-            strict (bool): Raise exception for missing row.
-                Works only for single-row select.
-                Defaults to True.
-            extra (Extra | None, optional): Extra params.
-                Defaults to None
-            session (TSession | None): Session to use for DB queries.
-                Defaults to None.
-                Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
-
-        Returns:
-            TResult | None: Found row or None
-        """
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> TResultDataclass | TResultORM | None: ...
 
     def all(
         self,
         *,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TResult]:
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> Iterable[TResultDataclass | TResultORM]:
         """
         Select rows
 
@@ -282,11 +282,28 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
+            convert_to (Type[TResultDataclass] | None): Convert result to
 
         Returns:
-            Iterable[TResult]: Found rows
+            Iterable[TResultDataclass | TResultORM]: Found rows
         """
+
+    @overload
+    def all(
+        self,
+        *,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Literal[None] = None,
+    ) -> Iterable[TResultORM]: ...
+    @overload
+    def all(
+        self,
+        *,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Type[TResultDataclass],
+    ) -> Iterable[TResultDataclass]: ...
 
     def all_by_field(
         self,
@@ -295,8 +312,8 @@ class IRepo(Protocol[TTable]):
         value: TFieldValue,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TResult]:
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> Iterable[TResultDataclass | TResultORM]:
         """
         Get rows by field:value
 
@@ -308,11 +325,32 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
+            convert_to (Type[TResultDataclass] | None): Convert result to
 
         Returns:
-            Iterable[TResult]: Found rows
+            Iterable[TResultDataclass | TResultORM]: Found rows
         """
+
+    @overload
+    def all_by_field(
+        self,
+        *,
+        name: str,
+        value: TFieldValue,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Literal[None] = None,
+    ) -> Iterable[TResultORM]: ...
+    @overload
+    def all_by_field(
+        self,
+        *,
+        name: str,
+        value: TFieldValue,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Type[TResultDataclass],
+    ) -> Iterable[TResultDataclass]: ...
 
     def all_by_filters(
         self,
@@ -320,8 +358,8 @@ class IRepo(Protocol[TTable]):
         filters: IFilterSeq,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TResult]:
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> Iterable[TResultDataclass | TResultORM]:
         """
         Get rows by filters
 
@@ -332,11 +370,30 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
+            convert_to (Type[TResultDataclass] | None): Convert result to
 
         Returns:
-            Iterable[TResult]: Found rows
+            Iterable[TResultDataclass | TResultORM]: Found rows
         """
+
+    @overload
+    def all_by_filters(
+        self,
+        *,
+        filters: IFilterSeq,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Literal[None] = None,
+    ) -> Iterable[TResultORM]: ...
+    @overload
+    def all_by_filters(
+        self,
+        *,
+        filters: IFilterSeq,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Type[TResultDataclass],
+    ) -> Iterable[TResultDataclass]: ...
 
     def all_by_pks(
         self,
@@ -344,8 +401,8 @@ class IRepo(Protocol[TTable]):
         *,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TResult]:
+        convert_to: Type[TResultDataclass] | None = None,
+    ) -> Iterable[TResultDataclass | TResultORM]:
         """
         Get rows by primary keys
 
@@ -356,11 +413,30 @@ class IRepo(Protocol[TTable]):
             session (TSession | None): Session to use for DB queries.
                 Defaults to None.
                 Currently supported for SQLAlchemy
-            convert_to (TResult | None): Convert result to
+            convert_to (Type[TResultDataclass] | None): Convert result to
 
         Returns:
-            Iterable[TResult]: Found rows
+            Iterable[TResultDataclass | TResultORM]: Found rows
         """
+
+    @overload
+    def all_by_pks(
+        self,
+        pks: Sequence[TPrimaryKey],
+        *,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Literal[None] = None,
+    ) -> Iterable[TResultORM]: ...
+    @overload
+    def all_by_pks(
+        self,
+        pks: Sequence[TPrimaryKey],
+        *,
+        extra: Extra | None = None,
+        session: TSession | None = None,
+        convert_to: Type[TResultDataclass],
+    ) -> Iterable[TResultDataclass]: ...
 
     def update(
         self,
@@ -556,7 +632,12 @@ class mode(IntEnum):
 
 @runtime_checkable
 class IFilter(
-    Protocol[TTable, TColumn, TFieldValue, TCompiledFilter]
+    Protocol[
+        TTableCovariant,
+        TColumn,
+        TFieldValue,
+        TCompiledFilter,
+    ]
 ):  # type:ignore[misc]
     column: TColumn
     column_name: str
@@ -565,7 +646,7 @@ class IFilter(
 
     def __init__(
         self,
-        table_class: Type[TTable],
+        table_class: Type[TTableCovariant],
         column_name: str,
         value: TFieldValue | None = None,
         operator_: operator = operator.eq,
@@ -584,7 +665,7 @@ class IFilter(
         self,
         value: TFieldValue,
         operator_: operator = operator.eq,
-    ) -> IFilter:
+    ) -> Self:
         """
         Finish construction of the object.
         This is a 2nd-step construction for DI support

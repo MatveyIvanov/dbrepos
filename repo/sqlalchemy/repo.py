@@ -24,6 +24,8 @@ from sqlalchemy import (
     insert,
     select,
     update,
+    Table,
+    Row,
 )
 from sqlalchemy.orm import Query, Session
 
@@ -36,16 +38,17 @@ from repo.decorators import strict as _strict
 from repo.shortcuts import get_object_or_404 as _get_object_or_404
 from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
 
-TTable = TypeVar("TTable")
+
+TTable = TypeVar("TTable", bound=Table)
 if TYPE_CHECKING:
-    TEntity = TypeVar("TEntity", bound=DataclassInstance)
-    TResult = TypeVar("TEntity", TTable, DataclassInstance)
+    TEntity = TypeVar("TEntity", bound=DataclassInstance, contravariant=True)
+    TResult = TypeVar("TResult", Row[Tuple], Tuple, DataclassInstance)
 else:
     TEntity = TypeVar("TEntity")
-    TResult = TypeVar("TEntity", bound=TTable)
-TPrimaryKey = TypeVar("TPrimaryKey", int, str)
+    TResult = TypeVar("TResult")
+TPrimaryKey = TypeVar("TPrimaryKey", int, str, covariant=True)
 TFieldValue = TypeVar("TFieldValue")
-TSession = TypeVar("TSession", bound=Session)
+TSession = TypeVar("TSession", bound=Session, covariant=True)
 TQuery = TypeVar("TQuery", Select, Query, Update, Delete)
 
 
@@ -88,7 +91,7 @@ class AlchemyRepo(IRepo[TTable]):
         *,
         session: TSession | None = None,
         convert_to: TResult | None = None,
-    ) -> TTable:
+    ) -> TResult:
         session = cast(TSession, session)
         return session.execute(
             insert(self.table_class)
@@ -109,7 +112,7 @@ class AlchemyRepo(IRepo[TTable]):
         extra: Extra | None = None,
         session: TSession | None = None,
         convert_to: TResult | None = None,
-    ) -> TTable:
+    ) -> TResult:
         session = cast(TSession, session)
         qs = self._resolve_extra(
             qs=self._select(),
@@ -133,7 +136,7 @@ class AlchemyRepo(IRepo[TTable]):
         extra: Extra | None = None,
         session: TSession | None = None,
         convert_to: TResult | None = None,
-    ) -> TTable:
+    ) -> TResult:
         session = cast(TSession, session)
         qs = self._resolve_extra(
             qs=self._select(),
@@ -152,7 +155,7 @@ class AlchemyRepo(IRepo[TTable]):
         extra: Extra | None = None,
         session: TSession | None = None,
         convert_to: TResult | None = None,
-    ) -> TTable:
+    ) -> TResult:
         session = cast(TSession, session)
         return self.get_by_field(
             name=self.pk_field_name,
@@ -172,7 +175,7 @@ class AlchemyRepo(IRepo[TTable]):
         extra: Extra | None = None,
         session: TSession | None = None,
         convert_to: TResult | None = None,
-    ) -> Iterable[TTable]:
+    ) -> Iterable[TResult]:
         session = cast(TSession, session)
         return session.execute(  # type:ignore[return-value] # Though Result is iterable
             self._resolve_extra(qs=self._select(), extra=extra)
@@ -189,7 +192,7 @@ class AlchemyRepo(IRepo[TTable]):
         extra: Extra | None = None,
         session: TSession | None = None,
         convert_to: TResult | None = None,
-    ) -> Iterable[TTable]:
+    ) -> Iterable[TResult]:
         session = cast(TSession, session)
         qs = self._resolve_extra(
             qs=self._select(),
@@ -207,7 +210,7 @@ class AlchemyRepo(IRepo[TTable]):
         extra: Extra | None = None,
         session: TSession | None = None,
         convert_to: TResult | None = None,
-    ) -> Iterable[TTable]:
+    ) -> Iterable[TResult]:
         session = cast(TSession, session)
         qs = self._resolve_extra(
             qs=self._select(),
@@ -226,7 +229,7 @@ class AlchemyRepo(IRepo[TTable]):
         extra: Extra | None = None,
         session: TSession | None = None,
         convert_to: TResult | None = None,
-    ) -> Iterable[TTable]:
+    ) -> Iterable[TResult]:
         session = cast(TSession, session)
         return self.all_by_filters(
             filters=AlchemyFilterSeq(

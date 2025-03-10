@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Iterable, Literal, Type, TypeVar
+from typing import Callable, Dict, Iterable, Literal, Type, TypeVar, Self
 
 from sqlalchemy import (
     BinaryExpression,
@@ -9,11 +9,12 @@ from sqlalchemy import (
     ColumnExpressionArgument,
     and_,
     or_,
+    Table,
 )
 
 from repo.core.abstract import IFilter, IFilterSeq, mode, operator
 
-TTable = TypeVar("TTable")
+TTable = TypeVar("TTable", bound=Table)
 TFieldValue = TypeVar("TFieldValue")
 
 
@@ -61,7 +62,7 @@ class AlchemyFilter(
         value: TFieldValue | None = None,
         operator_: operator = operator.eq,
     ) -> None:
-        self.column: Column = table_class.c.get(column_name, None)
+        self.column = table_class.c.get(column_name, None)  # type:ignore[attr-defined]
         self.column_name = column_name
         self.value = value or None
         self.operator_ = operator_
@@ -70,9 +71,7 @@ class AlchemyFilter(
             self.column is not None
         ), f"Model {table_class.name} has no column named {column_name}."
 
-    def __call__(
-        self, value: TFieldValue, operator_: operator = operator.eq
-    ) -> IFilter:
+    def __call__(self, value: TFieldValue, operator_: operator = operator.eq) -> Self:
         self.value = value
         self.operator_ = operator_
         return self
@@ -87,7 +86,12 @@ class AlchemyFilterSeq(IFilterSeq[BinaryExpression[bool] | ColumnElement[bool]])
         /,
         mode_: mode,
         *filters: (
-            IFilter[TTable, Column, TFieldValue]
+            IFilter[
+                TTable,
+                Column,
+                TFieldValue,
+                BinaryExpression[bool] | ColumnElement[bool],
+            ]
             | IFilterSeq[BinaryExpression[bool] | ColumnElement[bool]]
         ),
     ) -> None:

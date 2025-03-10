@@ -527,7 +527,7 @@ def test_order_by_param(
 
 # NOTE: explanation for missing `select_related` params tests.
 # First of all, Django - this is a perfect case for unit testing,
-# is is really hard to do integration test in django for this types of
+# as is really hard to do integration test in django for this types of
 # orm usages.
 # Secondly, SQLAlchemy - does not support this param yet.
 # For now, it seems like integrational tests

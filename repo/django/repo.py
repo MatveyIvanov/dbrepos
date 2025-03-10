@@ -16,15 +16,14 @@ from repo.shortcuts import get_object_or_404 as _get_object_or_404
 
 TTable = TypeVar("TTable", bound=Model)
 if TYPE_CHECKING:
-    TEntity = TypeVar("TEntity", bound=DataclassInstance)
-    TResult = TypeVar("TEntity", TTable, DataclassInstance)
+    TEntity = TypeVar("TEntity", bound=DataclassInstance, contravariant=True)
+    TResult = TypeVar("TResult", Model, DataclassInstance)
 else:
     TEntity = TypeVar("TEntity")
-    TResult = TypeVar("TEntity", bound=TTable)
-TPrimaryKey = TypeVar("TPrimaryKey", int, str)
+    TResult = TypeVar("TResult")
+TPrimaryKey = TypeVar("TPrimaryKey", int, str, covariant=True)
 TFieldValue = TypeVar("TFieldValue")
-TSession = TypeVar("TSession")
-
+TSession = TypeVar("TSession", covariant=True)
 
 strict = _strict
 handle_error = _handle_error
@@ -55,8 +54,8 @@ class DjangoRepo(IRepo[TTable]):
         entity: TEntity,
         *,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TTable:
+        convert_to: TResultDataclass | None = None,
+    ) -> TResult:
         return self.table_class.objects.create(**asdict(entity))
 
     @handle_error
@@ -69,8 +68,8 @@ class DjangoRepo(IRepo[TTable]):
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TTable:
+        convert_to: TResultDataclass | None = None,
+    ) -> TResult:
         return get_object_or_404(
             self._resolve_extra(qs=self.table_class.objects, extra=extra)
             .filter(**{name: value})
@@ -86,8 +85,8 @@ class DjangoRepo(IRepo[TTable]):
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TTable:
+        convert_to: TResultDataclass | None = None,
+    ) -> TResult:
         return get_object_or_404(
             self._resolve_extra(qs=self.table_class.objects, extra=extra)
             .filter(filters.compile())
@@ -102,8 +101,8 @@ class DjangoRepo(IRepo[TTable]):
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> TTable:
+        convert_to: TResultDataclass | None = None,
+    ) -> TResult:
         return self.get_by_field(
             name=self.pk_field_name,
             value=pk,
@@ -117,8 +116,8 @@ class DjangoRepo(IRepo[TTable]):
         *,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TTable]:
+        convert_to: TResultDataclass | None = None,
+    ) -> Iterable[TResult]:
         return self._all(extra=extra)
 
     @handle_error
@@ -129,8 +128,8 @@ class DjangoRepo(IRepo[TTable]):
         value: TFieldValue,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TTable]:
+        convert_to: TResultDataclass | None = None,
+    ) -> Iterable[TResult]:
         return self._all_by_field(name=name, value=value, extra=extra)
 
     @handle_error
@@ -140,8 +139,8 @@ class DjangoRepo(IRepo[TTable]):
         filters: IFilterSeq[Q],
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TTable]:
+        convert_to: TResultDataclass | None = None,
+    ) -> Iterable[TResult]:
         return self._all_by_filters(filters=filters, extra=extra)
 
     @handle_error
@@ -151,8 +150,8 @@ class DjangoRepo(IRepo[TTable]):
         *,
         extra: Extra | None = None,
         session: TSession | None = None,
-        convert_to: TResult | None = None,
-    ) -> Iterable[TTable]:
+        convert_to: TResultDataclass | None = None,
+    ) -> Iterable[TResult]:
         return self._all_by_pks(pks=pks, extra=extra)
 
     @handle_error

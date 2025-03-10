@@ -8,11 +8,11 @@ lint:
 	poetry run flake8 .
 typecheck:
 	poetry run mypy .
-black:
-	poetry run black .
-isort:
-	poetry run isort . --profile black --filter-files
+formatcheck:
+	poetry run black . --check
+sortcheck:
+	poetry run isort . --profile black --filter-files --check
 install-git-hooks:
-	poetry run pre-commit install --hook-type pre-push
+	poetry run pre-commit install --hook-type pre-commit
 uninstall-git-hooks:
-	poetry run pre-commit uninstall -t pre-push
+	poetry run pre-commit uninstall -t pre-commit

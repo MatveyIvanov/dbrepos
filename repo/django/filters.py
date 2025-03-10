@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Type, TypeVar
+from typing import Callable, Dict, Type, TypeVar, Self
 
 from django.db.models import Field, Model, Q  # type:ignore[import-untyped]
 
@@ -48,7 +48,7 @@ class DjangoFilter(IFilter[TModel, Field, TFieldValue, Q]):
         self,
         value: TFieldValue,
         operator_: operator = operator.eq,
-    ) -> IFilter:
+    ) -> Self:
         self.value = value
         self.operator_ = operator_
         return self
@@ -59,8 +59,13 @@ class DjangoFilter(IFilter[TModel, Field, TFieldValue, Q]):
         )
 
 
-class DjangoFilterSeq(IFilterSeq):
-    def __init__(self, /, mode_: mode, *filters: IFilter | IFilterSeq):
+class DjangoFilterSeq(IFilterSeq[Q]):
+    def __init__(
+        self,
+        /,
+        mode_: mode,
+        *filters: IFilter[TModel, Field, TFieldValue, Q] | IFilterSeq[Q],
+    ):
         self.mode_ = mode_
         self.filters = filters
 
@@ -75,5 +80,8 @@ class DjangoFilterSeq(IFilterSeq):
             return result[0]
         compiled = result.pop(0)
         while result:
-            compiled = _MODE_TO_ORM[self.mode_](compiled, result.pop(0))
+            compiled = _MODE_TO_ORM[self.mode_](
+                compiled,
+                result.pop(0),  # type:ignore[call-arg]
+            )
         return compiled
