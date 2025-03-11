@@ -1,188 +1,51 @@
-# TODO<!-- omit from toc -->
-![Static Badge](https://img.shields.io/badge/python-3.11-brightgreen?style=flat&logo=python)
-![Static Badge](https://img.shields.io/badge/coverage-0%25-red?logo=pytest)
-![Static Badge](https://img.shields.io/badge/tests-failing-red?style=flat&logo=pytest)
-![Static Badge](https://img.shields.io/badge/flake8-passing-brightgreen?style=flat&logo=python)
-![Static Badge](https://img.shields.io/badge/mypy-failing-red?style=flat&logo=python)
-![Static Badge](https://img.shields.io/badge/isort-passing-brightgreen?style=flat&logo=python)
-![Static Badge](https://img.shields.io/badge/black-passing-brightgreen?style=flat&logo=python)
+Repo: Repository Pattern Implementation for Python
+=======================================
 
-## Оглавление<!-- omit from toc -->
-* [Запуск тестов](#запуск-тестов)
-    * [Вне Docker-контейнера](#вне-docker-контейнера)
-* [Запуск flake8](#запуск-flake8)
-    * [Вне Docker-контейнера](#вне-docker-контейнера-1)
-* [Запуск mypy](#запуск-mypy)
-    * [Вне Docker-контейнера](#вне-docker-контейнера-2)
-* [Разработка](#разработка)
-    * [Форматирование кода](#форматирование-кода)
-    * [Git хуки](#git-хуки)
-- [Запуск тестов](#запуск-тестов)
-- [Запуск Flake8](#запуск-flake8)
-- [Запуск mypy](#запуск-mypy)
-- [Разработка](#разработка)
-  - [Форматирование кода](#форматирование-кода)
-  - [Git хуки](#git-хуки)
-    - [Pre-commit хуки](#pre-commit-хуки)
-    - [Pre-push хуки](#pre-push-хуки)
-  - [Git хуки](#git-хуки-1)
-    - [Pre-commit хуки](#pre-commit-хуки-1)
-    - [Pre-push хуки](#pre-push-хуки-1)
-  - [Make](#make)
-  - [CHANGELOG.md](#changelogmd)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-## Запуск тестов
-1. Перейти в директорию с [конфигурационным файлом](./pyproject.toml)
-2. Начать выполнение тестов через команду
 
-    ```bash
-    poetry run pytest .
-    ```
+What is repo?
+-------------
 
-    или 
+See [the documentation](https://repo.readthedocs.io/en/stable/index.html) for
+more examples and information.
 
-    ```bash
-    make test
-    ```
+Quick start
+-----------
 
-## Запуск Flake8
-1. Перейти в директорию с [конфигурационным файлом](./.flake8)
-2. Начать выполнение `flake8` через команду
+repo can be installed using pip:
 
-    ```bash
-    poetry run flake8 .
-    ```
-
-    или 
-
-    ```bash
-    make lint
-    ```
-
-## Запуск mypy
-1. Перейти в директорию с [конфигурационным файлом](./pyproject.toml)
-2. Начать выполнение `mypy` через команду
-
-    ```bash
-    poetry run mypy .
-    ```
-
-    или 
-
-    ```bash
-    make typecheck
-    ```
-
-## Разработка
-### Форматирование кода
-При разработке рекомендуется использовать [black](https://pypi.org/project/black/), чтобы поддерживать чистоту кода и избегать лишних изменений при работе с гитом.<br>
-Пример конфигурационного файла для Visual Studio Code `.vscode/settings.json`:
-```json
-{
-    "python.analysis.autoImportCompletions": true,
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.formatOnSave": true
-    }
-}
-```
-
-### Git хуки
-При разработке рекомендуется использовать [pre-commit](https://pre-commit.com/), чтобы перед формированием МР код был уже подготовленным и поверхностно проверенным (например, через `flake8`)<br><br>
-**Для использования должны быть установлены dev-зависимости**
-
-#### Pre-commit хуки
-Установка
 ```bash
-poetry run pre-commit install
+python3 -m pip install -U repo
 ```
-Удаление
+
+If you want to run the latest version of the code, you can install from the
+github directly:
+
 ```bash
-poetry run pre-commit uninstall
-```
-После установки, при каждом коммите будут отрабатывать хуки из [конфигурационного файла](./.pre-commit-config.yaml), предназначенные для коммитов (`stages: [commit]`)
-
-#### Pre-push хуки
-Установка
-```bash
-poetry run pre-commit install --hook-type pre-push
-```
-Удаление
-```bash
-poetry run pre-commit uninstall -t pre-push
-```
-После установки, при каждом пуше будут отрабатывать хуки из [конфигурационного файла](./.pre-commit-config.yaml), предназначенные для пушей (`stages: [push]`)
-
-### Git хуки
-При разработке рекомендуется использовать [pre-commit](https://pre-commit.com/), чтобы перед формированием МР код был уже подготовленным и поверхностно проверенным (например, через `flake8`)<br><br>
-**Для использования должны быть установлены dev-зависимости**
-
-#### Pre-commit хуки
-Установка
-```bash
-poetry run pre-commit install
-```
-Удаление
-```bash
-poetry run pre-commit uninstall
-```
-После установки, при каждом коммите будут отрабатывать хуки из [конфигурационного файла](./.pre-commit-config.yaml), предназначенные для коммитов (`stages: [commit]`)
-
-#### Pre-push хуки
-Установка
-```bash
-poetry run pre-commit install --hook-type pre-push
-```
-Удаление
-```bash
-poetry run pre-commit uninstall -t pre-push
-```
-После установки, при каждом пуше будут отрабатывать хуки из [конфигурационного файла](./.pre-commit-config.yaml), предназначенные для пушей (`stages: [push]`)
-
-### Make
-Для удобного запуска тестов и т.п. в проекте есть [Makefile](./Makefile)
-
-Для выполнения инструкции, на примере запуска тестов, нужно выполнить команду
-```bash
-make test
+python3 -m pip install -U git+https://github.com/MatveyIvanov/repo.git
 ```
 
-### CHANGELOG.md
-По готовности релиза в `release/*` ветке или при хотфиксе в `hotfix/*` ветке, нужно обновить файл [CHANGELOG.md](./CHANGELOG.md).  
+Contributing
+------------
 
-Заметки о новом релизе добавляются в начало файла, т.е. до предыдущего релиза.
-Шаблон заметки о релизе
-```md
-## 1.1.0 (2024-01-01)
+Help in testing, development, documentation and other tasks is
+highly appreciated and useful to the project.
 
-Security:
+To get started with developing repo, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-  -   
-
-Features:
-
-  - 
-
-Bugfixes:
-
-  - 
-
-```
-
-При необходимости, можно вести заметки о будущем релизе прямо в ветке `develop`. В таком случае, вместо даты релиза нужно писать `unreleased`, который потом следует заменить на фактическую дату релиза
-```md
-## 1.2.0 (unreleased)
-
-Security:
-
-  -   
-
-Features:
-
-  - 
-
-Bugfixes:
-
-  - 
-
-```
+Stable release roadmap
+----------------------------------
+* Unit tests for repo methods
+* 100% test coverage
+* async API for SQLAlchemy
+* Support for both SQLAlchemy's table API's
+* 100% documentation coverage
+* Automated package deployment
+* Automated testing, linting and more for PRs, merges to main and tags
+* Automated badges updates after CI
+* Automated docs updates after CI
+* Hosted docs
+* Ready-to-use fixtures for testing outside the package
+* Finalized README, CONTRIBUTING, CHANGELOG
+* ...

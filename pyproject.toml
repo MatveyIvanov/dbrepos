@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "repository"
+name = "repo"
 version = "0.0.1"
 description = "Repository pattern implementation for popular ORM's and drivers"
 authors = ["MatveyIvanov <cool.matvey250301@gmail.com>"]
