@@ -16,3 +16,7 @@ install-git-hooks:
 	poetry run pre-commit install --hook-type pre-commit
 uninstall-git-hooks:
 	poetry run pre-commit uninstall -t pre-commit
+docsbuild:
+	cd docs \
+		&& sphinx-apidoc -f -o ../docs/source/ ../repo \
+		&& $(MAKE) html
