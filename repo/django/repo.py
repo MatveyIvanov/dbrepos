@@ -73,9 +73,12 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         session: TSession | None = None,
     ) -> TResultDataclass | TResultORM | None:
         return get_object_or_404(
-            self._resolve_extra(qs=self.table_class.objects, extra=extra)
-            .filter(**{name: value})
-            .first(),
+            self._make_convertable(
+                qs=self._resolve_extra(qs=self.table_class.objects, extra=extra).filter(
+                    **{name: value}
+                ),
+                convert_to=convert_to,
+            ).first(),
         )
 
     @handle_error
@@ -91,9 +94,12 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         session: TSession | None = None,
     ) -> TResultDataclass | TResultORM | None:
         return get_object_or_404(
-            self._resolve_extra(qs=self.table_class.objects, extra=extra)
-            .filter(filters.compile())
-            .first()
+            self._make_convertable(
+                qs=self._resolve_extra(qs=self.table_class.objects, extra=extra).filter(
+                    filters.compile()
+                ),
+                convert_to=convert_to,
+            ).first()
         )
 
     @handle_error
@@ -124,7 +130,10 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass | TResultORM]:
-        return self._all(extra=extra)
+        return self._make_convertable(
+            qs=self._all(extra=extra),
+            convert_to=convert_to,
+        )
 
     @handle_error
     @convert(many=True, orm="django")
@@ -137,7 +146,10 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass | TResultORM]:
-        return self._all_by_field(name=name, value=value, extra=extra)
+        return self._make_convertable(
+            qs=self._all_by_field(name=name, value=value, extra=extra),
+            convert_to=convert_to,
+        )
 
     @handle_error
     @convert(many=True, orm="django")
@@ -149,7 +161,10 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass | TResultORM]:
-        return self._all_by_filters(filters=filters, extra=extra)
+        return self._make_convertable(
+            qs=self._all_by_filters(filters=filters, extra=extra),
+            convert_to=convert_to,
+        )
 
     @handle_error
     @convert(many=True, orm="django")
@@ -161,7 +176,12 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass | TResultORM]:
-        return self._all_by_pks(pks=pks, extra=extra)
+        if not pks:
+            return []
+        return self._make_convertable(
+            qs=self._all_by_pks(pks=pks, extra=extra),
+            convert_to=convert_to,
+        )
 
     @handle_error
     def update(
@@ -172,6 +192,8 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> None:
+        if not values:
+            return
         self._all_by_pks(pks=[pk], extra=extra).update(**values)
 
     @handle_error
@@ -183,6 +205,8 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> None:
+        if not pks or not values:
+            return
         self._all_by_pks(pks=pks, extra=extra).update(**values)
 
     @handle_error
@@ -321,3 +345,13 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         if extra.select_related:
             qs = qs.select_related(*extra.select_related)
         return qs
+
+    def _make_convertable(
+        self,
+        *,
+        qs: QuerySet[TTable],
+        convert_to: Type[TResultDataclass] | None,
+    ) -> QuerySet[TTable]:
+        if convert_to is None:
+            return qs
+        return qs.values_list()

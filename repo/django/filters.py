@@ -37,7 +37,7 @@ class DjangoFilter(IFilter[TModel, Field, TFieldValue, Q]):
     ) -> None:
         self.column: Field = getattr(table_class, column_name, None)
         self.column_name = column_name
-        self.value = value or None
+        self.value = value
         self.operator_ = operator_
 
         assert (

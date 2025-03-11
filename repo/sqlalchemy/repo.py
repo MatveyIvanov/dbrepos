@@ -231,6 +231,8 @@ class AlchemyRepo(IRepo[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass | TResultORM]:
+        if not pks:
+            return []
         session = cast(TSession, session)
         return self.all_by_filters(
             filters=AlchemyFilterSeq(
@@ -257,6 +259,8 @@ class AlchemyRepo(IRepo[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> None:
+        if not values:
+            return
         session = cast(TSession, session)
         session.execute(
             self._resolve_extra(qs=self._update(), extra=extra)
@@ -274,6 +278,8 @@ class AlchemyRepo(IRepo[TTable, TResultORM]):
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> None:
+        if not pks or not values:
+            return
         session = cast(TSession, session)
         session.execute(
             self._resolve_extra(qs=self._update(), extra=extra)

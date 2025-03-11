@@ -64,7 +64,7 @@ class AlchemyFilter(
     ) -> None:
         self.column = table_class.c.get(column_name, None)  # type:ignore[attr-defined]
         self.column_name = column_name
-        self.value = value or None
+        self.value = value
         self.operator_ = operator_
 
         assert (
