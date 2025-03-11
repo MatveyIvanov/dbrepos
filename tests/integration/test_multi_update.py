@@ -1,15 +1,5 @@
-from dataclasses import fields
-
 import pytest
 
-from tests.parametrize import multi_repo_parametrize, session_parametrize
-import pytest
-
-from repo.core.types import mode, operator
-from tests.parametrize import multi_repo_parametrize, session_parametrize
-import pytest
-
-from tests.entities import TableEntity
 from tests.parametrize import multi_repo_parametrize
 
 
@@ -43,6 +33,24 @@ from tests.parametrize import multi_repo_parametrize
             {"name": "new name", "is_deleted": True},
             [(1, "new name", True)],
         ),
+        (
+            [
+                {"name": "name1", "is_deleted": False},
+                {"name": "name2", "is_deleted": False},
+            ],
+            [2],
+            {"name": "new name", "is_deleted": True},
+            [(1, "name1", False), (2, "new name", True)],
+        ),
+        (
+            [
+                {"name": "name1", "is_deleted": False},
+                {"name": "name2", "is_deleted": False},
+            ],
+            [1, 2],
+            {"name": "new name", "is_deleted": True},
+            [(1, "new name", True), (2, "new name", True)],
+        ),
     ),
 )
 def test_multi_update(
@@ -60,7 +68,7 @@ def test_multi_update(
 
     inserted_pks = []
     for row in preload:
-        inserted_pks.append(("table", runner, row).id)
+        inserted_pks.append(insert("table", runner, row).id)
 
     assert repo.multi_update(pks=pks, values=values) is None
-    assert select("table", runner) == expected_result
+    assert list(select("table", runner)) == expected_result

@@ -1,5 +1,6 @@
 import functools
 import logging
+from dataclasses import fields
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -11,6 +12,7 @@ from typing import (
     TypeVar,
 )
 
+from django.db.models import Model
 from sqlalchemy import Row
 
 from repo.core.exceptions import BaseRepoException
@@ -29,6 +31,16 @@ else:
 
 
 def strict(func: Callable | None = None) -> Callable:
+    """Decorator that handles `strict` parameter
+
+    Args:
+        func (Callable | None, optional): Function to decorate.
+            Defaults to None
+
+    Returns:
+        Callable: Decorated function
+    """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -135,7 +147,22 @@ def convert(
     *,
     many: bool = False,
     orm: ORM | None = None,
-):
+) -> Callable:
+    """Decorator that converts function result
+        item(s) to passed in `convert_to` dataclass
+
+    Args:
+        func (Callable | None, optional): Function to decorate.
+            Defaults to None
+        many (bool, optional): Flag that marks function return type as a collection.
+            Defaults to False
+        orm (ORM | None, optional): Used ORM inside a function.
+            Defaults to None
+
+    Returns:
+        Callable: Decorated function
+    """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -162,6 +189,13 @@ def convert(
                     return convert_to(*instance)
                 if isinstance(instance, Row):
                     return convert_to(*instance[0])
+                if isinstance(instance, Model):
+                    return convert_to(
+                        **{
+                            field.name: getattr(instance, field.name)
+                            for field in fields(convert_to)
+                        }
+                    )
                 return instance
 
             if not many:

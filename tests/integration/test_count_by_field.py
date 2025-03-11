@@ -1,6 +1,5 @@
 import pytest
 
-from tests.entities import TableEntity
 from tests.parametrize import multi_repo_parametrize
 
 

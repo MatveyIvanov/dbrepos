@@ -1,9 +1,6 @@
 import pytest
 
-from repo.core.types import mode, operator
-from tests.parametrize import multi_repo_parametrize, session_parametrize
-import pytest
-
+from repo.core.types import mode
 from tests.entities import TableEntity
 from tests.parametrize import multi_repo_parametrize
 

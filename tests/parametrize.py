@@ -134,7 +134,7 @@ convert_to_parametrize = pytest.mark.parametrize(
             TableEntity,
             {
                 "alchemy": TableEntity,
-                "django": (DjangoTable, QuerySet),
+                "django": TableEntity,
             },
         ),
         (

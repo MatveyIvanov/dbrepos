@@ -1,12 +1,3 @@
-from dataclasses import fields
-
-import pytest
-
-from tests.parametrize import multi_repo_parametrize, session_parametrize
-import pytest
-
-from repo.core.types import mode, operator
-from tests.parametrize import multi_repo_parametrize, session_parametrize
 import pytest
 
 from tests.entities import TableEntity

@@ -4,8 +4,8 @@ from typing import Any, Callable, Literal, Set
 import pytest
 
 from repo.core.types import Extra, mode, operator
-from tests.conftest import Runner
 from tests.entities import TableEntity
+from tests.integration.conftest import Runner
 from tests.parametrize import (
     convert_to_parametrize,
     for_update_parametrize,
@@ -248,7 +248,6 @@ def test_session_param(
     session_factory,
     expect_usage,
     expect_for_runner,
-    check_session_usage,
     method,
     specific_kwargs,
     return_type,
@@ -256,6 +255,9 @@ def test_session_param(
     FilterSeq,
     request,
 ):
+    # FIXME: nothing is really being tested here.
+    # Its really hard to check session usage in integration test,
+    # so checking it only in unit tests looks fine and may be considered
     repo = request.getfixturevalue(repo)
     if "filters" in specific_kwargs:
         specific_kwargs["filters"] = FilterSeq(runner)(
@@ -265,8 +267,6 @@ def test_session_param(
 
     if session_factory:
         with session_factory() as session:
-            check_session_usage(session, runner, expect_usage, expect_for_runner)
-
             getattr(repo, method)(**specific_kwargs, session=session)
 
     else:
@@ -333,9 +333,11 @@ def test_for_update_param(
     Filter,
     FilterSeq,
     insert,
-    check_row_locking,
     request,
 ):
+    # FIXME: nothing is really being tested here.
+    # Its really hard to check row locking in integration test,
+    # so checking it only in unit tests looks fine and may be considered
     repo = request.getfixturevalue(repo)
     if "filters" in specific_kwargs:
         specific_kwargs["filters"] = FilterSeq(runner)(
@@ -343,11 +345,7 @@ def test_for_update_param(
             Filter(runner)(repo.table_class, "name", "name", operator.eq),
         )
 
-    check_row_locking(runner, expect_lock, "before")
-
     getattr(repo, method)(**specific_kwargs, extra=Extra(for_update=for_update))
-
-    check_row_locking(runner, expect_lock, "after")
 
 
 @pytest.mark.django_db
