@@ -47,7 +47,6 @@ jobs:
         with:
           python_version: "3.13"
           poetry_install_options: "--without dev"
-          poetry_publish_options: "--build"
           # pypi_token: ${{ secrets.PYPI_API_TOKEN }}
           # test.pypi.org
           repository_name: "testpypi"
