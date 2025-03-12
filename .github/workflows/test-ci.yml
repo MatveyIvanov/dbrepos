@@ -1,6 +1,7 @@
 name: Tests, linters, analyzers and formatters
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "main"

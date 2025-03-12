@@ -1,6 +1,7 @@
 name: Publishing
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
@@ -38,6 +39,7 @@ jobs:
 
   build-n-publish:
     name: Build and Publish
+    needs: [tests, linters]
     uses: JRubics/poetry-publish@v2.1
     with:
       python_version: "3.13"
