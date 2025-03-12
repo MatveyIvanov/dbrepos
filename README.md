@@ -12,7 +12,7 @@
 What is `repository`?
 -------------
 
-See [the documentation](https://repository.readthedocs.io/en/stable/index.html) for
+See [the documentation](https://repository-package.readthedocs.io/en/latest/) for
 more examples and information.
 
 Quick start
