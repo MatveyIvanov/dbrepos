@@ -4,7 +4,7 @@ import pytest
 import sqlalchemy as sa
 from django.db.models import QuerySet
 
-from repo.core.exceptions import BaseRepoException
+from repository.core.exceptions import BaseRepoException
 from tests.django.tables.models import DjangoTable
 from tests.entities import InsertTableEntity, TableEntity
 from tests.sqlalchemy import AlchemySyncDatabase

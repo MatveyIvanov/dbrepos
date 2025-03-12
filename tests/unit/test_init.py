@@ -1,7 +1,7 @@
 import pytest
 
-from repo.django.repo import DjangoRepo
-from repo.sqlalchemy.repo import AlchemyRepo
+from repository.django.repo import DjangoRepo
+from repository.sqlalchemy.repo import AlchemyRepo
 from tests.django.tables.models import DjangoTable
 from tests.sqlalchemy import AlchemySyncDatabase, AlchemyTable
 

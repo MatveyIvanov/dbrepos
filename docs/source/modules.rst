@@ -1,7 +1,7 @@
-repo
-====
+repository
+==========
 
 .. toctree::
    :maxdepth: 4
 
-   repo
+   repository

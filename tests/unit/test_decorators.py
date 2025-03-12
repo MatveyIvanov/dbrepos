@@ -3,8 +3,8 @@ from unittest import mock
 
 import pytest
 
-from repo.core.exceptions import BaseRepoException
-from repo.decorators import convert, handle_error, session, strict
+from repository.core.exceptions import BaseRepoException
+from repository.decorators import convert, handle_error, session, strict
 from tests.entities import TableEntity
 
 

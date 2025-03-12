@@ -1,6 +1,6 @@
 import pytest
 
-from repo.core.types import mode
+from repository.core.types import mode
 from tests.entities import TableEntity
 from tests.parametrize import multi_repo_parametrize
 

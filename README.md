@@ -1,29 +1,34 @@
-Repo: Repository Pattern Implementation for Python
+`Repository`: Repository-Pattern Implementation for Python
 =======================================
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Coverage Status](https://coveralls.io/repos/github/MatveyIvanov/repository/badge.svg?branch=main)](https://coveralls.io/github/MatveyIvanov/repository?branch=main)
+![GitHub License](https://img.shields.io/github/license/MatveyIvanov/repository)
+![PyPI - Version](https://img.shields.io/pypi/v/repository)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/repository)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/repository)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/MatveyIvanov/repository/test-ci.yml?branch=main)
 
-
-What is repo?
+What is `repository`?
 -------------
 
-See [the documentation](https://repo.readthedocs.io/en/stable/index.html) for
+See [the documentation](https://repository.readthedocs.io/en/stable/index.html) for
 more examples and information.
 
 Quick start
 -----------
 
-repo can be installed using pip:
+`repository` can be installed using pip:
 
 ```bash
-python3 -m pip install -U repo
+python3 -m pip install -U repository
 ```
 
 If you want to run the latest version of the code, you can install from the
 github directly:
 
 ```bash
-python3 -m pip install -U git+https://github.com/MatveyIvanov/repo.git
+python3 -m pip install -U git+https://github.com/MatveyIvanov/repository.git
 ```
 
 Contributing
@@ -32,11 +37,11 @@ Contributing
 Help in testing, development, documentation and other tasks is
 highly appreciated and useful to the project.
 
-To get started with developing repo, see [CONTRIBUTING.md](CONTRIBUTING.md).
+To get started with developing `repository`, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Stable release roadmap
 ----------------------------------
-* Unit tests for repo methods
+* Unit tests for repositories methods
 * 100% test coverage
 * async API for SQLAlchemy
 * Support for both SQLAlchemy's table API's

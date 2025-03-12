@@ -1,6 +1,6 @@
 import pytest
 
-from repo.sqlalchemy.repo import AlchemyRepo
+from repository.sqlalchemy.repo import AlchemyRepo
 from tests.sqlalchemy import AlchemySyncDatabase, AlchemyTable
 
 

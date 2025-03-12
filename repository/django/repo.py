@@ -6,13 +6,13 @@ if TYPE_CHECKING:
 
 from django.db.models import Model, Q, QuerySet  # type:ignore[import-untyped]
 
-from repo.core.abstract import IFilterSeq, IRepo, mode, operator
-from repo.core.types import Extra
-from repo.decorators import convert as _convert
-from repo.decorators import handle_error as _handle_error
-from repo.decorators import strict as _strict
-from repo.django.filters import DjangoFilter, DjangoFilterSeq
-from repo.shortcuts import get_object_or_404 as _get_object_or_404
+from repository.core.abstract import IFilterSeq, IRepo, mode, operator
+from repository.core.types import Extra
+from repository.decorators import convert as _convert
+from repository.decorators import handle_error as _handle_error
+from repository.decorators import strict as _strict
+from repository.django.filters import DjangoFilter, DjangoFilterSeq
+from repository.shortcuts import get_object_or_404 as _get_object_or_404
 
 TTable = TypeVar("TTable", bound=Model)
 if TYPE_CHECKING:

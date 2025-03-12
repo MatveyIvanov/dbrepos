@@ -1,5 +1,5 @@
 repository package
-============
+==================
 
 Subpackages
 -----------
@@ -15,7 +15,7 @@ Submodules
 ----------
 
 repository.decorators module
-----------------------
+----------------------------
 
 .. automodule:: repository.decorators
    :members:
@@ -23,7 +23,7 @@ repository.decorators module
    :undoc-members:
 
 repository.shortcuts module
----------------------
+---------------------------
 
 .. automodule:: repository.shortcuts
    :members:

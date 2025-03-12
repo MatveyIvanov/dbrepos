@@ -1,11 +1,11 @@
 repository.django package
-===================
+=========================
 
 Submodules
 ----------
 
 repository.django.filters module
---------------------------
+--------------------------------
 
 .. automodule:: repository.django.filters
    :members:
@@ -13,7 +13,7 @@ repository.django.filters module
    :undoc-members:
 
 repository.django.repo module
------------------------
+-----------------------------
 
 .. automodule:: repository.django.repo
    :members:

@@ -3,7 +3,7 @@ from typing import Any, Callable, Literal, Set
 
 import pytest
 
-from repo.core.types import Extra, mode, operator
+from repository.core.types import Extra, mode, operator
 from tests.entities import TableEntity
 from tests.integration.conftest import Runner
 from tests.parametrize import (

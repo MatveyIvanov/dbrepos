@@ -1,6 +1,6 @@
 from typing import Type, TypeVar
 
-from repo.core.exceptions import BaseRepoException
+from repository.core.exceptions import BaseRepoException
 
 TObject = TypeVar("TObject")
 

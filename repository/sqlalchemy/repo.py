@@ -29,15 +29,15 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Query, Session
 
-from repo.core.abstract import IFilterSeq, IRepo, mode, operator
-from repo.core.types import Extra
-from repo.decorators import TDataclass
-from repo.decorators import convert as _convert
-from repo.decorators import handle_error as _handle_error
-from repo.decorators import session as _session
-from repo.decorators import strict as _strict
-from repo.shortcuts import get_object_or_404 as _get_object_or_404
-from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
+from repository.core.abstract import IFilterSeq, IRepo, mode, operator
+from repository.core.types import Extra
+from repository.decorators import TDataclass
+from repository.decorators import convert as _convert
+from repository.decorators import handle_error as _handle_error
+from repository.decorators import session as _session
+from repository.decorators import strict as _strict
+from repository.shortcuts import get_object_or_404 as _get_object_or_404
+from repository.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
 
 TTable = TypeVar("TTable", bound=Table)
 if TYPE_CHECKING:

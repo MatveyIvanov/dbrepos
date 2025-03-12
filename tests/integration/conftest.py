@@ -4,9 +4,9 @@ from typing import Any, Callable, Literal, Type
 import pytest
 import sqlalchemy as sa
 
-from repo.core.abstract import IFilter, IFilterSeq
-from repo.django.filters import DjangoFilter, DjangoFilterSeq
-from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
+from repository.core.abstract import IFilter, IFilterSeq
+from repository.django.filters import DjangoFilter, DjangoFilterSeq
+from repository.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
 from tests.django.tables.models import DjangoTable
 from tests.integration.fixtures.django import *  # noqa:F401,F403
 from tests.integration.fixtures.sqlalchemy import *  # noqa:F401,F403

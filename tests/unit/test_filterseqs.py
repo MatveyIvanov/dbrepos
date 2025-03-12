@@ -3,9 +3,9 @@ from unittest import mock
 import pytest
 from django.db.models import Q
 
-from repo.core.types import mode
-from repo.django.filters import DjangoFilter, DjangoFilterSeq
-from repo.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
+from repository.core.types import mode
+from repository.django.filters import DjangoFilter, DjangoFilterSeq
+from repository.sqlalchemy.filters import AlchemyFilter, AlchemyFilterSeq
 from tests.django.tables.models import DjangoTable
 from tests.sqlalchemy import AlchemyTable
 

@@ -1,21 +1,21 @@
 repository.sqlalchemy package
-=======================
+=============================
 
 Submodules
 ----------
 
 repository.sqlalchemy.filters module
-------------------------------
+------------------------------------
 
 .. automodule:: repository.sqlalchemy.filters
    :members:
    :show-inheritance:
    :undoc-members:
 
-repository.sqlalchemy.repository module
----------------------------
+repository.sqlalchemy.repo module
+---------------------------------
 
-.. automodule:: repository.sqlalchemy.repository
+.. automodule:: repository.sqlalchemy.repo
    :members:
    :show-inheritance:
    :undoc-members:

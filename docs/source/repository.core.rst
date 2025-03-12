@@ -1,11 +1,11 @@
 repository.core package
-=================
+=======================
 
 Submodules
 ----------
 
 repository.core.abstract module
--------------------------
+-------------------------------
 
 .. automodule:: repository.core.abstract
    :members:
@@ -13,7 +13,7 @@ repository.core.abstract module
    :undoc-members:
 
 repository.core.exceptions module
----------------------------
+---------------------------------
 
 .. automodule:: repository.core.exceptions
    :members:
@@ -21,7 +21,7 @@ repository.core.exceptions module
    :undoc-members:
 
 repository.core.types module
-----------------------
+----------------------------
 
 .. automodule:: repository.core.types
    :members:
