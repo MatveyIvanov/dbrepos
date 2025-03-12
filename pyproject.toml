@@ -194,7 +194,7 @@ commands = [
     ["coverage", "erase"],
     ["pytest", "tests"],
     ["coverage", "report"],
-#    ["coveralls"],
+    ["coveralls"],
 ]
 
 [build-system]
