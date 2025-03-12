@@ -184,9 +184,11 @@ passenv = [
     "GITHUB_*",
     "COVERALLS_*",
 ]
-#basepython = "python3.12"
+basepython = [
+    "py312",
+]
 deps = [
-    "{[testenv]deps}",
+    "{[env_run_base]deps}",
     "coverage==7.6.12",
     "coveralls==4.0.1",
 ]
