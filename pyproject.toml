@@ -1,7 +1,28 @@
+[project]
+name = "repo"
+version = "0.1.0"
+authors = [
+  { name="Matvey Ivanov", email="cool.matvey250301@gmail.com" },
+]
+description = "Repository Pattern Implementation for ORM's"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/MatveyIvanov/repo"
+Issues = "https://github.com/MatveyIvanov/repo/issues"
+
 [tool.poetry]
 name = "repo"
-version = "0.0.1"
-description = "Repository pattern implementation for popular ORM's and drivers"
+version = "0.1.0"
+description = "Repository Pattern Implementation for ORM's"
 authors = ["MatveyIvanov <cool.matvey250301@gmail.com>"]
 license = "MIT"
 readme = "README.md"
@@ -23,6 +44,7 @@ pytest-django = "4.10.0"
 django = "5.1.6"
 sqlalchemy = "2.0.36"
 sphinx = "8.2.3"
+tox = "4.24.2"
 
 [tool.pytest.ini_options]
 pythonpath = [
@@ -44,7 +66,11 @@ addopts = [
 ]
 DJANGO_SETTINGS_MODULE = "tests.django.config.settings"
 
+[tool.coverage.run]
+relative_files = true
+
 [tool.coverage.report]
+show_missing = true
 exclude_also = [
     # Don't complain about missing debug-only code:
     "def __repr__",
@@ -65,16 +91,20 @@ omit = [
     "*conftest.py",
     "*abstract.py",
     "*__init__*",
-    "*/tests/*",
+    "*tests*",
+    "*.tox*",
 ]
 
 [tool.black]
 exclude = '''
+    .tox*
 '''
 
 [tool.isort]
 profile = "black"
-skip_glob = []
+skip_glob = [
+    ".tox*"
+]
 
 [tool.mypy]
 python_version = 3.11
@@ -85,6 +115,86 @@ exclude = [
 ignore_missing_imports = false
 plugins = [
     
+]
+
+[tool.tox]
+requires = ["tox>=4.24.2"]
+env_list = [
+    "3.13",
+    "3.12",
+    "3.11",
+    "flake8",
+    "black",
+    "isort",
+    "mypy",
+    "coveralls",
+]
+
+[tool.tox.env_run_base]
+description = "Run test under {base_python}"
+deps = [
+    "pytest==8.2.1",
+    "pytest-cov==5.0.0",
+    "pytest-mock==3.14.0",
+    "pytest-asyncio==0.23.5",
+    "pytest-django==4.10.0",
+    "django==5.1.6",
+    "sqlalchemy==2.0.36",
+]
+commands = [["pytest", "tests"]]
+
+[tool.tox.env.flake8]
+description = "Run Flake8 on code base"
+deps = [
+    "flake8==7.1.0",
+]
+commands = [
+    ["flake8", "--config", ".flake8", "."],
+]
+
+[tool.tox.env.black]
+description = "Run Black on code base"
+deps = [
+    "black==24.4.2",
+]
+commands = [
+    ["black", "--config", "pyproject.toml", "--check", "."],
+]
+
+[tool.tox.env.isort]
+description = "Run isort on code base"
+deps = [
+    "isort==5.13.2"
+]
+commands = [
+    ["isort", "--profile", "black", "--filter-files", "--check", "."],
+]
+
+[tool.tox.env.mypy]
+description = "Run mypy on code base"
+deps = [
+    "mypy==1.10.0",
+    "django==5.1.6",
+    "sqlalchemy==2.0.36",
+]
+commands = [["mypy", "repo"]]
+
+[tool.tox.env.coveralls]
+passenv = [
+    "GITHUB_*",
+    "COVERALLS_*",
+]
+#basepython = "python3.12"
+deps = [
+    "{[testenv]deps}",
+    "coverage==7.6.12",
+    "coveralls==4.0.1",
+]
+commands = [
+    ["coverage", "erase"],
+    ["pytest", "tests"],
+    ["coverage", "report"],
+#    ["coveralls"],
 ]
 
 [build-system]

@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Iterable, Literal, Type, TypeVar, Self
+from typing import Callable, Dict, Iterable, Literal, Self, Type, TypeVar
 
 from sqlalchemy import (
     BinaryExpression,
     Column,
     ColumnElement,
     ColumnExpressionArgument,
+    Table,
     and_,
     or_,
-    Table,
 )
 
 from repo.core.abstract import IFilter, IFilterSeq, mode, operator

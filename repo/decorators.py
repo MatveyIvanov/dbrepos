@@ -12,7 +12,7 @@ from typing import (
     TypeVar,
 )
 
-from django.db.models import Model
+from django.db.models import Model  # type:ignore[import-untyped]
 from sqlalchemy import Row
 
 from repo.core.exceptions import BaseRepoException

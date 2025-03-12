@@ -4,6 +4,7 @@ exclude =
     .pypy_cache
     .pytest_cache
     .coverage
+    .tox
     docs
 max-line-length = 88
 per-file-ignores = 

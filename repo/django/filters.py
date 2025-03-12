@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Type, TypeVar, Self
+from typing import Callable, Dict, Self, Type, TypeVar
 
 from django.db.models import Field, Model, Q  # type:ignore[import-untyped]
 

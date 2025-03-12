@@ -54,7 +54,7 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         self,
         entity: TEntity,
         *,
-        convert_to: TResultDataclass | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
         session: TSession | None = None,
     ) -> TResultDataclass | TResultORM:
         return self.table_class.objects.create(**asdict(entity))
@@ -67,7 +67,7 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         *,
         name: str,
         value: TFieldValue,
-        convert_to: TResultDataclass | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
@@ -88,7 +88,7 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         self,
         *,
         filters: IFilterSeq[Q],
-        convert_to: TResultDataclass | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
@@ -107,7 +107,7 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         self,
         pk: TPrimaryKey,
         *,
-        convert_to: TResultDataclass | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
         strict: bool = True,
         extra: Extra | None = None,
         session: TSession | None = None,
@@ -126,7 +126,7 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
     def all(
         self,
         *,
-        convert_to: TResultDataclass | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass | TResultORM]:
@@ -142,7 +142,7 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         *,
         name: str,
         value: TFieldValue,
-        convert_to: TResultDataclass | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass | TResultORM]:
@@ -157,7 +157,7 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         self,
         *,
         filters: IFilterSeq[Q],
-        convert_to: TResultDataclass | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass | TResultORM]:
@@ -172,7 +172,7 @@ class DjangoRepo(IRepo[TTable, TResultORM]):
         self,
         pks: Sequence[TPrimaryKey],
         *,
-        convert_to: TResultDataclass | None = None,
+        convert_to: Type[TResultDataclass] | None = None,
         extra: Extra | None = None,
         session: TSession | None = None,
     ) -> Iterable[TResultDataclass | TResultORM]:
