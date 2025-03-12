@@ -38,15 +38,18 @@ jobs:
           TOXENV: 3.13
 
   build-n-publish:
-    name: Build and Publish
+    runs-on: ubuntu-24.04
     needs: [tests, linters]
-    uses: JRubics/poetry-publish@v2.1
-    with:
-      python_version: "3.13"
-      poetry_install_options: "--without dev"
-      poetry_publish_options: "--build"
-      # pypi_token: ${{ secrets.PYPI_API_TOKEN }}
-      # test.pypi.org
-      repository_name: "testpypi"
-      pypi_token: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      repository_url: "https://test.pypi.org/legacy/"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and Publish
+        uses: JRubics/poetry-publish@v2.1
+        with:
+          python_version: "3.13"
+          poetry_install_options: "--without dev"
+          poetry_publish_options: "--build"
+          # pypi_token: ${{ secrets.PYPI_API_TOKEN }}
+          # test.pypi.org
+          repository_name: "testpypi"
+          pypi_token: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: "https://test.pypi.org/legacy/"
