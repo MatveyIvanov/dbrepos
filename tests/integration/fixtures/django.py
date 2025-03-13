@@ -1,6 +1,6 @@
 import pytest
 
-from repository.django.repo import DjangoRepo
+from dbrepos.django.repo import DjangoRepo
 from tests.django.tables.models import DjangoTable
 
 

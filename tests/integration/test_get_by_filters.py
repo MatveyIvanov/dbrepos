@@ -1,6 +1,6 @@
 import pytest
 
-from repository.core.types import mode
+from dbrepos.core.types import mode
 from tests.entities import TableEntity
 from tests.parametrize import multi_repo_parametrize
 

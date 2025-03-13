@@ -2,7 +2,7 @@ from dataclasses import fields
 
 import pytest
 
-from repository.core.abstract import IRepo
+from dbrepos.core.abstract import IRepo
 from tests.entities import InsertTableEntity, TableEntity
 from tests.parametrize import multi_repo_parametrize
 
