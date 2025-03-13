@@ -1,6 +1,6 @@
-# Contributing to `repository`
+# Contributing to `dbrepos`
 
-Welcome! `repository` is an open-source project that aims to help developers write clean, readable, testable and scalable code while working with databases in any applications.  
+Welcome! `dbrepos` is an open-source project that aims to help developers write clean, readable, testable and scalable code while working with databases in any applications.  
 The project is in its early stages, so you are welcome to fix bugs, typos, make documentation improvements, propose new features and more!
 
 ## Code of Conduct

@@ -1,7 +1,7 @@
-repository
-==========
+dbrepos
+=======
 
 .. toctree::
    :maxdepth: 4
 
-   repository
+   dbrepos

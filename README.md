@@ -2,33 +2,33 @@
 =======================================
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Coverage Status](https://coveralls.io/repos/github/MatveyIvanov/repository/badge.svg?branch=main)](https://coveralls.io/github/MatveyIvanov/repository?branch=main)
-![GitHub License](https://img.shields.io/github/license/MatveyIvanov/repository)
-![PyPI - Version](https://img.shields.io/pypi/v/repository)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/repository)
-![PyPI - Wheel](https://img.shields.io/pypi/wheel/repository)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/MatveyIvanov/repository/test-ci.yml?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/MatveyIvanov/dbrepos/badge.svg?branch=main)](https://coveralls.io/github/MatveyIvanov/dbrepos?branch=main)
+![GitHub License](https://img.shields.io/github/license/MatveyIvanov/dbrepos)
+![PyPI - Version](https://img.shields.io/pypi/v/dbrepos)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dbrepos)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/dbrepos)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/MatveyIvanov/dbrepos/test-ci.yml?branch=main)
 
-What is `repository`?
+What is `dbrepos`?
 -------------
 
-See [the documentation](https://repository-package.readthedocs.io/en/latest/) for
+See [the documentation](https://dbrepos.readthedocs.io/en/latest/) for
 more examples and information.
 
 Quick start
 -----------
 
-`repository` can be installed using pip:
+`dbrepos` can be installed using pip:
 
 ```bash
-python3 -m pip install -U repository
+python3 -m pip install -U dbrepos
 ```
 
 If you want to run the latest version of the code, you can install from the
 github directly:
 
 ```bash
-python3 -m pip install -U git+https://github.com/MatveyIvanov/repository.git
+python3 -m pip install -U git+https://github.com/MatveyIvanov/dbrepos.git
 ```
 
 Contributing
@@ -37,7 +37,7 @@ Contributing
 Help in testing, development, documentation and other tasks is
 highly appreciated and useful to the project.
 
-To get started with developing `repository`, see [CONTRIBUTING.md](CONTRIBUTING.md).
+To get started with developing `dbrepos`, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Stable release roadmap
 ----------------------------------

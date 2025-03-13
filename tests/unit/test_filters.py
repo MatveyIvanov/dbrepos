@@ -1,9 +1,9 @@
 import pytest
 from django.db.models import Q
 
-from repository.core.types import operator
-from repository.django.filters import DjangoFilter
-from repository.sqlalchemy.filters import AlchemyFilter
+from dbrepos.core.types import operator
+from dbrepos.django.filters import DjangoFilter
+from dbrepos.sqlalchemy.filters import AlchemyFilter
 from tests.django.tables.models import DjangoTable
 from tests.sqlalchemy import AlchemyTable
 

@@ -9,7 +9,7 @@
 import os
 import sys
 
-project = "repository"
+project = "dbrepos"
 copyright = "2025, Matvey Ivanov"
 author = "Matvey Ivanov"
 release = "0.1.0"

@@ -19,7 +19,7 @@ from typing import (
 if TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
-from repository.core.types import Extra, mode, operator
+from dbrepos.core.types import Extra, mode, operator
 
 # NOTE: basically, we have 2 types of results:
 #   1. TResultDataclass, when conver_to param is specified;

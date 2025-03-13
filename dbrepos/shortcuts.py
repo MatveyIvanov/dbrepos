@@ -1,6 +1,6 @@
 from typing import Type, TypeVar
 
-from repository.core.exceptions import BaseRepoException
+from dbrepos.core.exceptions import BaseRepoException
 
 TObject = TypeVar("TObject")
 

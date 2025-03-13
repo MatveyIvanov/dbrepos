@@ -1,5 +1,5 @@
 [project]
-name = "repository"
+name = "dbrepos"
 version = "0.1.0"
 authors = [
   { name="Matvey Ivanov", email="cool.matvey250301@gmail.com" },
@@ -16,11 +16,11 @@ license = "MIT"
 license-files = ["LICEN[CS]E*"]
 
 [project.urls]
-Homepage = "https://github.com/MatveyIvanov/repository"
-Issues = "https://github.com/MatveyIvanov/repository/issues"
+Homepage = "https://github.com/MatveyIvanov/dbrepos"
+Issues = "https://github.com/MatveyIvanov/dbrepos/issues"
 
 [tool.poetry]
-name = "repository"
+name = "dbrepos"
 version = "0.1.0"
 description = "Repository Pattern Implementation for ORM's"
 authors = ["MatveyIvanov <cool.matvey250301@gmail.com>"]
@@ -177,7 +177,7 @@ deps = [
     "django==5.1.6",
     "sqlalchemy==2.0.36",
 ]
-commands = [["mypy", "repository"]]
+commands = [["mypy", "dbrepos"]]
 
 [tool.tox.env.coveralls]
 passenv = [

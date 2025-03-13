@@ -12,7 +12,7 @@ from sqlalchemy import (
     or_,
 )
 
-from repository.core.abstract import IFilter, IFilterSeq, mode, operator
+from dbrepos.core.abstract import IFilter, IFilterSeq, mode, operator
 
 TTable = TypeVar("TTable", bound=Table)
 TFieldValue = TypeVar("TFieldValue")

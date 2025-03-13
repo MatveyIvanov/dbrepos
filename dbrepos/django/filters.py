@@ -4,7 +4,7 @@ from typing import Callable, Dict, Self, Type, TypeVar
 
 from django.db.models import Field, Model, Q  # type:ignore[import-untyped]
 
-from repository.core.abstract import IFilter, IFilterSeq, mode, operator
+from dbrepos.core.abstract import IFilter, IFilterSeq, mode, operator
 
 TModel = TypeVar("TModel", bound=Model)
 TFieldValue = TypeVar("TFieldValue")

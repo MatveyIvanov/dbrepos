@@ -15,8 +15,8 @@ from typing import (
 from django.db.models import Model  # type:ignore[import-untyped]
 from sqlalchemy import Row
 
-from repository.core.exceptions import BaseRepoException
-from repository.core.types import ORM
+from dbrepos.core.exceptions import BaseRepoException
+from dbrepos.core.types import ORM
 
 if TYPE_CHECKING:
     from _typeshed import DataclassInstance

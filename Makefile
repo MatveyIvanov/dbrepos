@@ -22,5 +22,5 @@ uninstall-git-hooks:
 	poetry run pre-commit uninstall -t pre-commit
 docsbuild:
 	cd docs \
-		&& sphinx-apidoc -f -o ../docs/source/ ../repository \
+		&& sphinx-apidoc -f -o ../docs/source/ ../dbrepos \
 		&& $(MAKE) html

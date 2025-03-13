@@ -1,7 +1,7 @@
 import pytest
 
-from repository.core.exceptions import BaseRepoException
-from repository.shortcuts import BASE_MSG, get_object_or_404
+from dbrepos.core.exceptions import BaseRepoException
+from dbrepos.shortcuts import BASE_MSG, get_object_or_404
 
 
 class CustomException(BaseRepoException):
